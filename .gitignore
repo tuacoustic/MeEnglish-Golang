@@ -1,0 +1,14 @@
+#env file
+.env 
+
+#tmp folder
+tmp
+
+#bin folder
+bin
+
+#go.sum file
+go.sum
+
+#pkg folder get-air
+pkg

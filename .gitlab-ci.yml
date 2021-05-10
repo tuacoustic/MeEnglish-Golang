@@ -1,0 +1,37 @@
+stages:
+  - build
+  - deploy
+before_script:
+  - uname -r
+  - gitlab-announce announce_trigger
+variables:
+  DOCKER_IMG_NAME: 'gapp-registry:5000/go-api'
+  DOCKER_SERVICE_PREFIX: 'GKitchen_go-api'
+#jobs:
+config_build:
+  stage: build
+  script:
+    - if [ $CI_COMMIT_BRANCH == "master" ]; then export CICD_ENV=prod; fi
+    - if [ $CI_COMMIT_BRANCH == "develop" ]; then export CICD_ENV=dev; fi
+    - docker build -t $DOCKER_IMG_NAME:$CICD_ENV.$CI_COMMIT_SHORT_SHA -f docker/go-service/Dockerfile .
+    - docker push $DOCKER_IMG_NAME:$CICD_ENV.$CI_COMMIT_SHORT_SHA
+    - gitlab-announce mark_pass
+  after_script:
+    - gitlab-announce check
+  only:
+    - develop
+    - master
+deploy:
+  stage: deploy
+  script:
+    - if [ $CI_COMMIT_BRANCH == "master" ]; then export CICD_ENV=prod; fi
+    - if [ $CI_COMMIT_BRANCH == "develop" ]; then export CICD_ENV=dev; fi
+    - ssh -i /opt/deploy_key cicdbot@gswarm.manager $DOCKER_IMG_NAME:$CICD_ENV.$CI_COMMIT_SHORT_SHA --with-registry-auth --quiet $DOCKER_SERVICE_PREFIX-$CICD_ENV
+    - gitlab-announce mark_pass
+  only:
+    - develop
+    - master
+  after_script:
+    - gitlab-announce check
+    - gitlab-announce announce_finish
+

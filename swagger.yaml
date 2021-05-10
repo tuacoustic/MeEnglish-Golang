@@ -1,0 +1,8 @@
+basePath: /
+consumes:
+- application/json 
+info:
+  description: https://github.com/VC-Team/me-english
+  title: MeEnglish For Fun
+  version: 1.0.0
+swagger: "2.0"

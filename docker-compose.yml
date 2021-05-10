@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  me-english:
+    image: me-english
+    build:
+      context: .
+      dockerfile: ./docker/go-service/Dockerfile
+    ports:
+      - 127.0.0.1:4040:4040
