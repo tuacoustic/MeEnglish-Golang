@@ -2,6 +2,7 @@ package database
 
 import (
 	"log"
+	"me-english/entities"
 	"me-english/utils/config"
 	"me-english/utils/console"
 
@@ -44,13 +45,13 @@ func Auto() bool {
 	}
 	defer db.Close()
 
-	// err = db.Debug().AutoMigrate(&entities.Product{}).Error
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	err = db.Debug().AutoMigrate(&entities.Vocabulary{}).Error
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Add | Update ForeignKey
-	addForeignKey(db, "productPrice", addForeignKeyStruct{SourceKey: "productCode", ForeignKey: "product(productCode)"})
+	// addForeignKey(db, "productPrice", addForeignKeyStruct{SourceKey: "productCode", ForeignKey: "product(productCode)"})
 	// addForeignKey(db, "stockProduct", addForeignKeyStruct{SourceKey: "productCode", ForeignKey: "product(productCode)"})
 
 	// addForeignKey(db, &entities.Tag{}, addForeignKeyStruct{SourceKey: "product_id", ForeignKey: "products(id)"})

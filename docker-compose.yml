@@ -8,3 +8,12 @@ services:
       dockerfile: ./docker/go-service/Dockerfile
     ports:
       - 127.0.0.1:4040:4040
+  mysql:
+    image: me-mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Tudeptraivodoi0312
+      MYSQL_DATABASE: me-english
+      MYSQL_USER: tuacoustic
+      MYSQL_PASSWORD: Tudeptraivodoi0312

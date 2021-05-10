@@ -16,6 +16,7 @@ type Route struct {
 
 func Load() []Route {
 	routes := productRoutes
+	routes = append(routes, vocabularyRoutes...)
 	return routes
 }
 

@@ -31,7 +31,7 @@ DOCKER_SOURCE_FILE   := ${PROJECT_PWD}/docker/go-service/Dockerfile
 version:
 	@echo "Copyright © 2021 MeEnglish | Golang BackEnd | Version: $(VERSION)"
 	@git branch -v
-	@echo "See more: https://github.com/tudinhacoustic/me-english"
+	@echo "See more: https://github.com/MeEnglish/golang"
 
 # Package Reload
 .PHONY: get-air
