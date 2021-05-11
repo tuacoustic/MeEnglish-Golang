@@ -11,3 +11,8 @@ type repositoryVocabularyCRUD struct {
 func NewRepositoryVocabularyCRUD(db *gorm.DB) *repositoryVocabularyCRUD {
 	return &repositoryVocabularyCRUD{db}
 }
+
+func (r *repositoryVocabularyCRUD) AddVocab(vocabRequest OxfordCRUDJSON) (bool, error) {
+	// var err error
+	return true, nil
+}

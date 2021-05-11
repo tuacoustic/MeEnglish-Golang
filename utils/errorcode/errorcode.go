@@ -1,5 +1,7 @@
 package errorcode
 
+import "fmt"
+
 type ErrorCodeStruct struct {
 	ErrorCode string `json:"error_code"`
 	Message   string `json:"message"`
@@ -36,3 +38,10 @@ var (
 		},
 	}
 )
+
+func CustomErr(errorCode string, err error) ErrorCodeStruct {
+	return ErrorCodeStruct{
+		ErrorCode: errorCode,
+		Message:   fmt.Sprintf("%s", err),
+	}
+}

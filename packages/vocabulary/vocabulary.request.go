@@ -1,6 +1,6 @@
 package vocabulary
 
-type AddVocabReuqestStruct struct {
+type AddVocabRequestStruct struct {
 	Word string `json:"word"`
 	Vi   string `json:"vi"`
 }
