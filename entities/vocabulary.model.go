@@ -12,10 +12,13 @@ type Vocabulary struct {
 	Vi               string    `gorm:"size:255" json:"vi"`
 	Image            string    `gorm:"size:255;default:'https://st4.depositphotos.com/14953852/24787/v/600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg'" json:"image"`
 	Definition       string    `gorm:"size:255" json:"definition"`
-	Example          string    `gorm:"type:text" json:"Example"`
+	Examples         string    `gorm:"type:text" json:"example"`
 	AudioFile        string    `gorm:"size:255" json:"audio_file"`
 	Dialects         string    `gorm:"size:100:default:'American English'" json:"dialects"`
 	PhoneticSpelling string    `gorm:"size:100" json:"phonetic_spelling"`
+	Unit             string    `gorm:"size:50;default:'Unit 1'" json:"unit"`
+	Book             string    `gorm:"size:100;default:'Destination B1'" json:"book"`
+	Level            string    `gorm:"size:3;default:'A1'" json:"level"`
 	CreatedAt        time.Time `gorm:"default:current_timestamp" json:"created_at"`
 	UpdatedAt        time.Time `gorm:"default:current_timestamp" json:"updated_at"`
 }

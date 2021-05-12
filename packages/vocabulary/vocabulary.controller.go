@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"me-english/database"
-	"me-english/utils/console"
 	"me-english/utils/errorcode"
 	"me-english/utils/resp"
 	"net/http"
@@ -24,14 +23,13 @@ func AddVocab(w http.ResponseWriter, r *http.Request) {
 		resp.Failed(w, http.StatusBadRequest, errorcode.GeneralErr.ERR_400)
 		return
 	}
-	// Detech
-	var vocabRespData OxfordRespJSON
-	err = json.Unmarshal([]byte(OxfordResp), &vocabRespData)
+	// Validation
+	err = addVocabData.Validation("add_vocab")
 	if err != nil {
-		console.Info(err)
-		resp.Failed(w, http.StatusBadRequest, errorcode.CustomErr(ERROR_400, err))
+		respErr := errorcode.CustomErr(ERROR_400, err)
+		resp.Failed(w, http.StatusBadRequest, respErr)
+		return
 	}
-	oxfordCrudData := DetechOxfordRespData(vocabRespData)
 	db, err := database.MysqlConnect()
 	if err != nil {
 		resp.Failed(w, http.StatusBadRequest, errorcode.GeneralErr.ERR_500)
@@ -39,50 +37,18 @@ func AddVocab(w http.ResponseWriter, r *http.Request) {
 	}
 	repo := NewRepositoryVocabularyCRUD(db)
 	func(vocabularyRepo VocabularyRepository) {
-		status, err := vocabularyRepo.AddVocab(oxfordCrudData)
+		status, err := vocabularyRepo.AddVocab(addVocabData)
 		if err != nil {
 			respErr := errorcode.CustomErr(ERROR_400, err)
 			resp.Failed(w, http.StatusBadRequest, respErr)
 		}
-		console.Info(addVocabData.Word)
 		if status == true {
 			resp.Success(w, http.StatusOK, struct {
 				Msg string `json:"msg"`
 			}{
-				Msg: "Xin chào",
+				Msg: "Thêm từ mới thành công",
 			})
 		}
 		return
 	}(repo)
-}
-
-func DetechOxfordRespData(vocabRespData OxfordRespJSON) OxfordCRUDJSON {
-	var oxfordCrudData OxfordCRUDJSON
-	var getOxfordExamples []OxfordResultLexical2EntriesSensesExamplesJSON
-	for index, results := range vocabRespData.Results {
-		if index == 0 {
-			for _, lexicalEntries := range results.LexicalEntries {
-				for _, entries := range lexicalEntries.Entries {
-					for _, senses := range entries.Senses {
-						for _, text := range senses.Examples {
-							getOxfordExamples = append(getOxfordExamples, text)
-							oxfordCrudData = OxfordCRUDJSON{
-								ID:         vocabRespData.ID,
-								Provider:   vocabRespData.Metadata.Provider,
-								Language:   results.Language,
-								Definition: senses.Definitions,
-								Examples:   getOxfordExamples,
-							}
-						}
-					}
-					for _, pronunciations := range entries.Pronunciations {
-						oxfordCrudData.AudioFile = pronunciations.AudioFile
-						oxfordCrudData.Dialects = pronunciations.Dialects
-						oxfordCrudData.PhoneticSpelling = pronunciations.PhoneticSpelling
-					}
-				}
-			}
-		}
-	}
-	return oxfordCrudData
 }

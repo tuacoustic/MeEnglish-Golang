@@ -22,6 +22,7 @@ var (
 	// Oxford Config - 1k req/month
 	OXFORD_APP_ID  = "9142aa26"
 	OXFORD_APP_KEY = "8c069747485a726791b0f68f6829af10"
+	OXFORD_URL_API = "https://od-api.oxforddictionaries.com/api/v2/entries/en-us/word_params?strictMatch=false"
 )
 
 func Load() {

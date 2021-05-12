@@ -1,5 +1,5 @@
 package vocabulary
 
 type VocabularyRepository interface {
-	AddVocab(OxfordCRUDJSON) (bool, error)
+	AddVocab(AddVocabRequestStruct) (bool, error)
 }

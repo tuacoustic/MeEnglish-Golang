@@ -1,6 +1,10 @@
 package vocabulary
 
 type AddVocabRequestStruct struct {
-	Word string `json:"word"`
-	Vi   string `json:"vi"`
+	Word  string
+	Vi    string
+	Level string
+	Book  string
+	Image string
+	Unit  string
 }
