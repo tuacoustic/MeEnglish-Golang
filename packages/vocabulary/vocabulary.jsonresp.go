@@ -16,7 +16,12 @@ type OxfordResultRespJSON struct {
 }
 
 type OxfordResultLexicalEntriesJSON struct {
-	Entries []OxfordResultLexical2EntriesJSON `json:"Entries"`
+	Entries         []OxfordResultLexical2EntriesJSON             `json:"Entries"`
+	LexicalCategory OxfordResultLexicalEntriesLexicalCategoryJSON `json:"LexicalCategory"`
+}
+
+type OxfordResultLexicalEntriesLexicalCategoryJSON struct {
+	ID string `json:"id"`
 }
 
 type OxfordResultLexical2EntriesJSON struct {
@@ -40,12 +45,23 @@ type OxfordResultLexical2EntriesSensesPronunciationsJSON struct {
 }
 
 type OxfordCRUDJSON struct {
-	ID               string
-	Provider         string
-	Language         string
-	Definition       []string
-	Examples         []OxfordResultLexical2EntriesSensesExamplesJSON
-	AudioFile        string
-	Dialects         []string
-	PhoneticSpelling string
+	ID       string
+	Provider string
+	Language string
+	// Definition []string
+	DefinitionNoun      []string
+	DefinitionVerb      []string
+	DefinitionAdjective []string
+	DefinitionAdverb    []string
+	DefinitionPhrasal   []string
+	// Examples         []OxfordResultLexical2EntriesSensesExamplesJSON
+	ExamplesNoun      []OxfordResultLexical2EntriesSensesExamplesJSON
+	ExamplesVerb      []OxfordResultLexical2EntriesSensesExamplesJSON
+	ExamplesAdjective []OxfordResultLexical2EntriesSensesExamplesJSON
+	ExamplesAdverb    []OxfordResultLexical2EntriesSensesExamplesJSON
+	ExamplesPhrasal   []OxfordResultLexical2EntriesSensesExamplesJSON
+	AudioFile         string
+	Dialects          []string
+	PhoneticSpelling  string
+	LexicalCategory   []string
 }

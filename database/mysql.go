@@ -45,17 +45,12 @@ func Auto() bool {
 	}
 	defer db.Close()
 
-	err = db.Debug().AutoMigrate(&entities.Vocabulary{}).Error
+	err = db.Debug().AutoMigrate(&entities.Vocabulary{}, &entities.AwlGroup{}).Error
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Add | Update ForeignKey
-	// addForeignKey(db, "productPrice", addForeignKeyStruct{SourceKey: "productCode", ForeignKey: "product(productCode)"})
-	// addForeignKey(db, "stockProduct", addForeignKeyStruct{SourceKey: "productCode", ForeignKey: "product(productCode)"})
-
-	// addForeignKey(db, &entities.Tag{}, addForeignKeyStruct{SourceKey: "product_id", ForeignKey: "products(id)"})
-	// addForeignKey(db, &entities.ProductImages{}, addForeignKeyStruct{SourceKey: "product_id", ForeignKey: "products(id)"})
-
+	// addForeignKeyFree(db, "vocabulary", addForeignKeyStruct{SourceKey: "awl_group_id", ForeignKey: "awl_group(id)"})
 	return true
 }
