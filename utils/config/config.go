@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	PORT = 4040
+	PORT = 8888
 	// MYSQL_DB_URL           = "gkitchen:6CUykhj45tKgBJcs@tcp(10.0.1.233:3306)/gkitchen?charset=utf8&parseTime=True&loc=Local"
 	MYSQL_DB_URL           = "tuacoustic:Tudeptrai0312@tcp(192.168.170.86:3306)/me-english?charset=utf8&parseTime=True&loc=Local"
 	MYSQL_DB_IP            = ""
