@@ -13,7 +13,7 @@ func GoHomePage(w http.ResponseWriter, r *http.Request) {
 	resp.Success(w, http.StatusOK, struct {
 		Message string `json:"message"`
 	}{
-		Message: "Welcome to Gkitchen GO API",
+		Message: "Welcome to MeEnglish GO API",
 	})
 }
 
