@@ -19,7 +19,8 @@ RESET 		 := $(shell tput -Txterm sgr0)
 ALERT        := $(YELLOW)$(DATE)$(RESET)
 
 #Docker 
-DOCKER_SERVICE_NAME  := "me-english-registry:5000/go-api:dev"
+# DOCKER_SERVICE_NAME  := "me-english-registry:5000/go-api:dev"
+DOCKER_SERVICE_NAME  := "erp-registry:5000/me-english-go:prod"
 DOCKER_NAME 		 := "me-english"
 DOCKER_REPLICAS      := 1
 DOCKER_PORT   		 := 4040:4040
