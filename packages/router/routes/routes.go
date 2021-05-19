@@ -12,11 +12,13 @@ type Route struct {
 	Method       string
 	Handler      func(http.ResponseWriter, *http.Request)
 	AuthRequired bool
+	CheckHeaders bool
 }
 
 func Load() []Route {
 	routes := productRoutes
 	routes = append(routes, vocabularyRoutes...)
+	routes = append(routes, telegramRoutes...)
 	return routes
 }
 
@@ -29,17 +31,23 @@ func SetupRoutes(r *mux.Router) *mux.Router {
 
 func SetupRoutesWithMiddlewares(r *mux.Router) *mux.Router {
 	for _, route := range Load() {
-		if route.AuthRequired {
-			r.HandleFunc(route.Uri,
-				middlewares.SetMiddlewareLogger(
-					middlewares.SetMiddlewareJSON(
-						middlewares.SetMiddlewareHeader(
-							middlewares.SetMiddlewareVerifyToken(route.Handler))))).Methods(route.Method)
+		if route.CheckHeaders {
+			if route.AuthRequired {
+				r.HandleFunc(route.Uri,
+					middlewares.SetMiddlewareLogger(
+						middlewares.SetMiddlewareJSON(
+							middlewares.SetMiddlewareHeader(
+								middlewares.SetMiddlewareVerifyToken(route.Handler))))).Methods(route.Method)
+			} else {
+				r.HandleFunc(route.Uri,
+					middlewares.SetMiddlewareLogger(
+						middlewares.SetMiddlewareJSON(
+							middlewares.SetMiddlewareHeader(route.Handler)))).Methods(route.Method)
+			}
 		} else {
 			r.HandleFunc(route.Uri,
 				middlewares.SetMiddlewareLogger(
-					middlewares.SetMiddlewareJSON(
-						middlewares.SetMiddlewareHeader(route.Handler)))).Methods(route.Method)
+					middlewares.SetMiddlewareJSON(route.Handler))).Methods(route.Method)
 		}
 	}
 	return r
