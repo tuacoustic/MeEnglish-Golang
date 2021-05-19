@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"me-english/entities"
 	"me-english/utils/channels"
+	"me-english/utils/config"
+	sendReq "me-english/utils/sendRequest"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -27,10 +29,10 @@ func (r *repositoryVocabularyCRUD) AddVocab(addVocabData AddVocabRequestStruct) 
 	var err error
 	// Request đến Oxford
 	// Detech
-	// urlSendRequest := strings.Replace(config.OXFORD_URL_API, "word_params", fmt.Sprintf("%s", addVocabData.Word), -1)
-	// responseData := sendReq.PostRequestToOxford(urlSendRequest, "GET", "")
+	urlSendRequest := strings.Replace(config.OXFORD_URL_API, "word_params", fmt.Sprintf("%s", addVocabData.Word), -1)
+	responseData := sendReq.PostRequestToOxford(urlSendRequest, "GET", "")
 	var vocabRespData OxfordRespJSON
-	json.Unmarshal([]byte(OxfordResp), &vocabRespData)
+	json.Unmarshal([]byte(responseData), &vocabRespData)
 	oxfordCrudData := DetechOxfordRespData(vocabRespData)
 	done := make(chan bool)
 	go func(ch chan<- bool) {
@@ -105,6 +107,7 @@ where word = "%s"
 			Book:                addVocabData.Book,
 			Level:               addVocabData.Level,
 			LexicalCategory:     strings.Replace(ParseArrayToStringFor2More(inputLexicalCategory), "'", "", -1),
+			AwlGroupID:          addVocabData.AwlGroupID,
 		}
 		err = r.db.Debug().Model(&entities.Vocabulary{}).Create(&createData).Error
 		if err != nil {
@@ -121,10 +124,16 @@ where word = "%s"
 }
 
 func ParseArrayToString(input []string) string {
+	if len(input) == 0 {
+		return ""
+	}
 	return fmt.Sprintf(`["%s"]`, strings.Join(input, ", "))
 }
 
 func ParseArrayToStringFor2More(input []string) string {
+	if len(input) == 0 {
+		return ""
+	}
 	return fmt.Sprintf("[%s]", strings.Join(input, ", "))
 }
 
