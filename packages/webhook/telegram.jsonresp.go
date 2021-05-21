@@ -4,6 +4,11 @@ type TelegramRespJSON struct {
 	Message TelegramRespMessageJSON `json:"message"`
 }
 
+type TelegramErrJSON struct {
+	Ok          bool   `json:"ok"`
+	ErrorCode   int32  `json:"error_code"`
+	Description string `json:"description"`
+}
 type TelegramRespMessageJSON struct {
 	MessageID uint64                      `json:"message_id"`
 	Chat      TelegramRespChatJSON        `json:"chat"`
@@ -25,5 +30,5 @@ type TelegramRespMessageFromJSON struct {
 	IsBot     bool   `json:"is_bot"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
-	UserName  string `json:"user_name"`
+	UserName  string `json:"username"`
 }

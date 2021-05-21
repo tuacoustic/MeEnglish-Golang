@@ -23,6 +23,10 @@ var (
 	OXFORD_APP_ID  = "9142aa26"
 	OXFORD_APP_KEY = "8c069747485a726791b0f68f6829af10"
 	OXFORD_URL_API = "https://od-api.oxforddictionaries.com/api/v2/entries/en-us/word_params?strictMatch=false"
+
+	// Telegram config - Limited 20reqs/s
+	TELEGRAM_SEND_MESSAGE    = "https://api.telegram.org/bot@token_params/sendMessage?@params"
+	TELEGRAM_TOKEN_MEENGLISH = "1824373162:AAHrLY0caFSNJVaZI17B7pPxzQ_dw73YRBU"
 )
 
 func Load() {

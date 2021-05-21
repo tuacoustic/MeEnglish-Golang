@@ -2,7 +2,6 @@ package webhook
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"me-english/database"
 	"me-english/utils/errorcode"
 	"me-english/utils/resp"
@@ -12,14 +11,14 @@ import (
 func TelegramPushWebhook(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var commandFlag bool = false
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		resp.Failed(w, http.StatusBadRequest, errorcode.GeneralErr.ERR_400)
-		return
-	}
+	// body, err := ioutil.ReadAll(r.Body)
+	// if err != nil {
+	// 	resp.Failed(w, http.StatusBadRequest, errorcode.GeneralErr.ERR_400)
+	// 	return
+	// }
 	// fmt.Printf("%s\n", body)
 	var telegramPushWB TelegramRespJSON
-	err = json.Unmarshal([]byte(body), &telegramPushWB)
+	json.Unmarshal([]byte(TelegramStartResp), &telegramPushWB)
 	// Người dùng /start đăng ký học
 	for _, entityType := range telegramPushWB.Message.Entities {
 		if entityType.Type == BOT_COMMAND {

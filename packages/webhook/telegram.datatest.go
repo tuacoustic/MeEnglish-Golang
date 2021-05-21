@@ -1,6 +1,16 @@
 package webhook
 
 var (
+	TelegramMaxLimitRequestResp = `
+	{
+		"ok": false,
+		"error_code": 429,
+		"description": "Too Many Requests: retry after 5",
+		"parameters": {
+		  "retry_after": 5
+		}
+	}
+	`
 	TelegramStartResp = `
 	{
 		"update_id": 107460166,

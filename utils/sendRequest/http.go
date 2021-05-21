@@ -55,3 +55,25 @@ func PostRequestToOxford(url string, method string, jsonData interface{}) string
 	body, _ := ioutil.ReadAll(resp.Body)
 	return string(body)
 }
+
+func PostRequestToTelegram(url string, method string, jsonData interface{}) string {
+	console.Info(url)
+	bufData, err := json.Marshal(jsonData)
+	if err != nil {
+		console.Info("http.go PostRequestToTelegram err: %s", err)
+		return ""
+	}
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(bufData))
+	if err != nil {
+		console.Info("http.go PostRequestToTelegram req err: %s", err)
+		return ""
+	}
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	return string(body)
+}
