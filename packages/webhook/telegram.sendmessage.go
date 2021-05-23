@@ -3,14 +3,21 @@ package webhook
 import "fmt"
 
 var (
-	Author = "```From TuDinh```"
+	Author = "*From TuDinh*"
 )
 
 func ParamTelegramSendTextWelcome(telegramName string, userNumber int64) string {
 	return fmt.Sprintf(`
 %s
+
 Yay *%s*!
 Chúc mừng bạn là người thứ: *%d* kích hoạt BOT học tập này
+🎉 Mình xin cảm ơn đội ngũ đã giúp mình hoàn thành BOT này:
+❤️ Từ điển, Oxford: https://www.oxfordlearnersdictionaries.com
+❤️ Phát âm Mỹ, Oxford: https://www.oxfordlearnersdictionaries.com
+❤️ Hình ảnh chú thích, Pexels: https://pexels.com 
+❤️ Thao tác BOT, Telegram: https://telegram.org
+Và gia đình, những người bạn, đồng nghiệp, Sếp đã luôn ở bên động viên Tú.
 👉  Theo dõi mình nhé
 Website : https://tudinh.vn
 Facebook: https://fb.com/tudinhacoustic
@@ -31,8 +38,8 @@ func ParamTelegramSendReplyMarkupWelcome() string {
 			"callback_data": "/notification"
 		},
 		{
-			"text": "Cài đặt",
-			"callback_data": "/setting"
+			"text": "Hướng dẫn",
+			"callback_data": "/instruction"
 		}
 		],
 		[
@@ -41,8 +48,8 @@ func ParamTelegramSendReplyMarkupWelcome() string {
 			"callback_data": "/support"
 		},
 		{
-			"text": "Thoát tác vụ",
-			"callback_data": "/quit"
+			"text": "Cùng phát triển",
+			"callback_data": "/develop"
 		}
 		]
 	],
