@@ -29,6 +29,8 @@ func main() {
 	if status == true {
 		console.Info("Connect Mysql Successful")
 	}
+	console.Info("Listening [::]:", config.PORT)
+	listen(config.PORT)
 	b, err := tb.NewBot(tb.Settings{
 		// You can also set custom API URL.
 		// If field is empty it equals to "https://api.telegram.org".
@@ -49,5 +51,4 @@ func main() {
 
 	b.Start()
 	console.Info("Listening [::]:", config.PORT)
-	listen(config.PORT)
 }
