@@ -5,13 +5,12 @@ import (
 	"log"
 	"me-english/database"
 	"me-english/packages/router"
+	"me-english/packages/webhook"
 	"me-english/utils/config"
 	"me-english/utils/console"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/handlers"
-	tb "gopkg.in/tucnak/telebot.v2"
 )
 
 func listen(port int) {
@@ -29,26 +28,7 @@ func main() {
 	if status == true {
 		console.Info("Connect Mysql Successful")
 	}
+	webhook.Connect()
 	console.Info("Listening [::]:", config.PORT)
 	listen(config.PORT)
-	b, err := tb.NewBot(tb.Settings{
-		// You can also set custom API URL.
-		// If field is empty it equals to "https://api.telegram.org".
-		URL: "http://203.162.54.20:8888",
-
-		Token:  config.TELEGRAM_TOKEN_MEENGLISH,
-		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
-	})
-
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	b.Handle("/start", func(m *tb.Message) {
-		b.Send(m.Sender, "Hello World!")
-	})
-
-	b.Start()
-	console.Info("Listening [::]:", config.PORT)
 }

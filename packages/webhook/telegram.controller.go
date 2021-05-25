@@ -1,27 +1,57 @@
 package webhook
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
+	"log"
 	"me-english/database"
-	"me-english/utils/errorcode"
-	"me-english/utils/resp"
-	"net/http"
+	"me-english/utils/config"
+	sendReq "me-english/utils/sendRequest"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func TelegramPushWebhook(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	var commandFlag bool = false
-	body, err := ioutil.ReadAll(r.Body)
+func Connect() {
+	bot, err := tgbotapi.NewBotAPI(config.TELEGRAM_TOKEN_MEENGLISH)
 	if err != nil {
-		resp.Failed(w, http.StatusBadRequest, errorcode.GeneralErr.ERR_400)
-		return
+		log.Panic(err)
 	}
-	fmt.Printf("%s\n", body)
+	bot.Debug = true
+	log.Printf("Authorized on account %s", bot.Self.UserName)
+
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = 60
+
+	updates, err := bot.GetUpdatesChan(u)
 	var telegramPushWB TelegramRespJSON
-	json.Unmarshal([]byte(body), &telegramPushWB)
-	// Người dùng /start đăng ký học
+	var telegramMessageEntities []TelegramRespEntitiesJSON
+	for update := range updates {
+		if update.Message == nil { // ignore any non-Message Updates
+			continue
+		}
+		telegramPushWB.Message = TelegramRespMessageJSON{
+			MessageID: uint64(update.Message.Chat.ID),
+			Text:      update.Message.Text,
+		}
+		telegramPushWB.Message.Chat.Type = update.Message.Chat.Type
+		telegramPushWB.Message.From = TelegramRespMessageFromJSON{
+			ID:        uint64(update.Message.From.ID),
+			IsBot:     update.Message.From.IsBot,
+			FirstName: update.Message.From.FirstName,
+			LastName:  update.Message.From.LastName,
+			UserName:  update.Message.From.UserName,
+		}
+		// Add detail outside loop
+		for _, value := range *update.Message.Entities {
+			telegramMessageEntities = append(telegramMessageEntities, TelegramRespEntitiesJSON{
+				Type: value.Type,
+			})
+		}
+		telegramPushWB.Message.Entities = telegramMessageEntities
+		TelegramPushWebhook(telegramPushWB)
+	}
+}
+
+func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
+	var commandFlag bool = false
 	for _, entityType := range telegramPushWB.Message.Entities {
 		if entityType.Type == BOT_COMMAND {
 			commandFlag = true
@@ -29,7 +59,6 @@ func TelegramPushWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 	db, err := database.MysqlConnect()
 	if err != nil {
-		resp.Failed(w, http.StatusBadRequest, errorcode.GeneralErr.ERR_500)
 		return
 	}
 	repo := NewRepositoryTelegramCRUD(db)
@@ -37,18 +66,12 @@ func TelegramPushWebhook(w http.ResponseWriter, r *http.Request) {
 	case true: // Dùng lệnh
 		// Xử lý khi khách nhập start -> Tạo User vào Database
 		func(telegramRepo TelegramRepository) {
-			status, err := telegramRepo.CreateUser(telegramPushWB)
-			if err != nil {
-				respErr := errorcode.CustomErr(ERROR_400, err)
-				resp.Failed(w, http.StatusBadRequest, respErr)
-			}
+			status, url := telegramRepo.CreateUser(telegramPushWB)
 			if status == true {
-				resp.Success(w, http.StatusOK, struct {
-					Msg string `json:"msg"`
-				}{
-					Msg: "Thêm người dùng thành công",
-				})
+				sendReq.PostRequestToTelegram(url, "GET", "")
+				return
 			}
+			sendReq.PostRequestToTelegram(url, "GET", "")
 			return
 		}(repo)
 		break

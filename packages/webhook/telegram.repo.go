@@ -1,5 +1,5 @@
 package webhook
 
 type TelegramRepository interface {
-	CreateUser(TelegramRespJSON) (bool, error)
+	CreateUser(TelegramRespJSON) (bool, string) // Status | url
 }

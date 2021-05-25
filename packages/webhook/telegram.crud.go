@@ -1,13 +1,10 @@
 package webhook
 
 import (
-	"errors"
 	"fmt"
 	"me-english/entities"
 	"me-english/utils/channels"
 	"me-english/utils/config"
-	"me-english/utils/console"
-	sendReq "me-english/utils/sendRequest"
 	"net/url"
 
 	"github.com/jinzhu/gorm"
@@ -22,10 +19,16 @@ func NewRepositoryTelegramCRUD(db *gorm.DB) *repositoryTelegramCRUD {
 }
 
 var (
-	msg = ""
+	msg            = ""
+	telegramParams = config.SendTelegramMsgStruct{
+		ChatID:      uint64(664743441),
+		Text:        "Lỗi",
+		ReplyMarkup: "",
+		ParseMode:   "markdown",
+	}
 )
 
-func (r *repositoryTelegramCRUD) CreateUser(userData TelegramRespJSON) (bool, error) {
+func (r *repositoryTelegramCRUD) CreateUser(userData TelegramRespJSON) (bool, string) {
 	var err error
 	countExistTelegramUser := entities.CountTelegramUsers{}
 	countCurrentUsers := entities.CountTelegramUsers{}
@@ -42,7 +45,7 @@ func (r *repositoryTelegramCRUD) CreateUser(userData TelegramRespJSON) (bool, er
 		queryDBByTelegramID := QueryExistTelegramID(userData.Message.From.ID)
 		r.db.Raw(queryDBByTelegramID).Find(&countExistTelegramUser)
 		if countExistTelegramUser.Count > 0 {
-			msg = "Tên Telegram này đã tồn tại hệ thống"
+			msg = fmt.Sprintf("Tên Telegram này đã tồn tại hệ thống, TelegramID: %d | Tên tài khoản: %s", userData.Message.From.ID, userData.Message.From.UserName)
 			ch <- false
 			return
 		}
@@ -61,17 +64,15 @@ func (r *repositoryTelegramCRUD) CreateUser(userData TelegramRespJSON) (bool, er
 		// Gửi tin Telegram thông báo
 		telegramMsg := url.QueryEscape(ParamTelegramSendTextWelcome(userData.Message.From.UserName, int64(countCurrentUsers.Count)))
 		replyMarkup := url.QueryEscape(ParamTelegramSendReplyMarkupWelcome())
-		telegramParams := config.SendTelegramMsgStruct{
-			ChatID:      userData.Message.From.ID,
-			Text:        telegramMsg,
-			ReplyMarkup: replyMarkup,
-			ParseMode:   "markdown",
-		}
+		telegramParams.ChatID = userData.Message.From.ID
+		telegramParams.Text = telegramMsg
+		telegramParams.ReplyMarkup = replyMarkup
 		getTelegramMsgUrl := config.GetTelegramMeEnglishSendMsgUrlConfig(telegramParams)
-		responseData := sendReq.PostRequestToTelegram(getTelegramMsgUrl, "GET", "")
-		console.Info(responseData)
-		console.Info(telegramMsg)
-		return true, nil
+		return true, getTelegramMsgUrl
 	}
-	return false, errors.New(msg)
+	if msg == "" {
+		msg = fmt.Sprintf("Lỗi không tạo đươc tài khoản")
+	}
+	telegramParams.Text = msg
+	return false, config.GetTelegramMeEnglishSendMsgUrlConfig(telegramParams)
 }
