@@ -3,18 +3,20 @@ package webhook
 import (
 	"log"
 	"me-english/database"
+	"me-english/telegram"
 	"me-english/utils/config"
-	sendReq "me-english/utils/sendRequest"
+	"me-english/utils/console"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func Connect() {
+func ConnectWebhook() {
 	bot, err := tgbotapi.NewBotAPI(config.TELEGRAM_TOKEN_MEENGLISH)
 	if err != nil {
-		log.Panic(err)
+		return
 	}
-	bot.Debug = true
+	bot.Debug = false
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
@@ -22,7 +24,6 @@ func Connect() {
 
 	updates, err := bot.GetUpdatesChan(u)
 	var telegramPushWB TelegramRespJSON
-	var telegramMessageEntities []TelegramRespEntitiesJSON
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates
 			continue
@@ -39,45 +40,77 @@ func Connect() {
 			LastName:  update.Message.From.LastName,
 			UserName:  update.Message.From.UserName,
 		}
-		// Add detail outside loop
-		for _, value := range *update.Message.Entities {
-			telegramMessageEntities = append(telegramMessageEntities, TelegramRespEntitiesJSON{
-				Type: value.Type,
-			})
-		}
-		telegramPushWB.Message.Entities = telegramMessageEntities
 		TelegramPushWebhook(telegramPushWB)
 	}
 }
 
 func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 	var commandFlag bool = false
-	for _, entityType := range telegramPushWB.Message.Entities {
-		if entityType.Type == BOT_COMMAND {
-			commandFlag = true
-		}
+	isCommand := string(telegramPushWB.Message.Text[0])
+	if isCommand == Command_Handling.StartBot {
+		commandFlag = true
 	}
 	db, err := database.MysqlConnect()
 	if err != nil {
 		return
 	}
+	bot, err := telegram.ConnectBot()
+	if err != nil {
+		return
+	}
 	repo := NewRepositoryTelegramCRUD(db)
+	StudyNowVie := NewRepositoryTelegramVieCRUD(db)
 	switch commandFlag {
 	case true: // Dùng lệnh
 		// Xử lý khi khách nhập start -> Tạo User vào Database
-		func(telegramRepo TelegramRepository) {
-			status, url := telegramRepo.CreateUser(telegramPushWB)
-			if status == true {
-				sendReq.PostRequestToTelegram(url, "GET", "")
+		if telegramPushWB.Message.Text == "/start" {
+			func(telegramRepo TelegramRepository) {
+				status, text, replyMarkup := telegramRepo.CreateUser(telegramPushWB)
+				if status == true {
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					msg.ParseMode = telegramParams.ParseMode
+					msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
+					return
+				}
+				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+				msg.ParseMode = telegramParams.ParseMode
+				bot.Send(msg)
 				return
-			}
-			sendReq.PostRequestToTelegram(url, "GET", "")
-			return
-		}(repo)
+			}(repo)
+		}
 		break
 	case false: // Không dùng lệnh
-
-		break
+		switch strings.ToLower(telegramPushWB.Message.Text) {
+		case Command_Handling.StudyNowVie:
+			// msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), "*Test*")
+			// msg.ParseMode = telegramParams.ParseMode
+			// bot.Send(msg)
+			func(telegramVieRepo TelegramVieRepository) {
+				status, _ := telegramVieRepo.StudyNowVie(telegramPushWB)
+				if status == true {
+					// sendReq.PostRequestToTelegram(url, "GET", "")
+					return
+				}
+				// sendReq.PostRequestToTelegram(url, "GET", "")
+				return
+			}(StudyNowVie)
+			break
+		case Command_Handling.AutoRemindVie:
+			console.Info("Nhắc học tự động")
+			break
+		case Command_Handling.InstructionVie:
+			console.Info("Hướng dẫn")
+			break
+		case Command_Handling.SupportVie:
+			console.Info("Gửi hỗ trợ")
+			break
+		case Command_Handling.DevelopVie:
+			console.Info("Cùng phát triển")
+			break
+		case Command_Handling.DonateVie:
+			console.Info("Ủng hộ tác giả")
+		}
 	}
 	return
 }

@@ -28,7 +28,7 @@ func main() {
 	if status == true {
 		console.Info("Connect Mysql Successful")
 	}
-	webhook.Connect()
+	webhook.ConnectWebhook()
 	console.Info("Listening [::]:", config.PORT)
 	listen(config.PORT)
 }

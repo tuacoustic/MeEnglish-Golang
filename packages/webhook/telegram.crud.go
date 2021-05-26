@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"me-english/entities"
 	"me-english/utils/channels"
-	"me-english/utils/config"
-	"net/url"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jinzhu/gorm"
 )
 
@@ -18,20 +17,12 @@ func NewRepositoryTelegramCRUD(db *gorm.DB) *repositoryTelegramCRUD {
 	return &repositoryTelegramCRUD{db}
 }
 
-var (
-	msg            = ""
-	telegramParams = config.SendTelegramMsgStruct{
-		ChatID:      uint64(664743441),
-		Text:        "Lỗi",
-		ReplyMarkup: "",
-		ParseMode:   "markdown",
-	}
-)
-
-func (r *repositoryTelegramCRUD) CreateUser(userData TelegramRespJSON) (bool, string) {
+func (r *repositoryTelegramCRUD) CreateUser(userData TelegramRespJSON) (bool, string, tgbotapi.ReplyKeyboardMarkup) {
 	var err error
 	countExistTelegramUser := entities.CountTelegramUsers{}
 	countCurrentUsers := entities.CountTelegramUsers{}
+	// Telegram ReplyMarkup
+	var replyMarkup tgbotapi.ReplyKeyboardMarkup
 	done := make(chan bool)
 	go func(ch chan<- bool) {
 		defer close(ch)
@@ -62,17 +53,13 @@ func (r *repositoryTelegramCRUD) CreateUser(userData TelegramRespJSON) (bool, st
 	}(done)
 	if channels.OK(done) {
 		// Gửi tin Telegram thông báo
-		telegramMsg := url.QueryEscape(ParamTelegramSendTextWelcome(userData.Message.From.UserName, int64(countCurrentUsers.Count)))
-		replyMarkup := url.QueryEscape(ParamTelegramSendReplyMarkupWelcome())
-		telegramParams.ChatID = userData.Message.From.ID
-		telegramParams.Text = telegramMsg
-		telegramParams.ReplyMarkup = replyMarkup
-		getTelegramMsgUrl := config.GetTelegramMeEnglishSendMsgUrlConfig(telegramParams)
-		return true, getTelegramMsgUrl
+		telegramMsg := ParamTelegramSendTextWelcome(userData.Message.From.UserName, int64(countCurrentUsers.Count))
+		replyMarkup = Home_Reply
+		return true, telegramMsg, replyMarkup
 	}
 	if msg == "" {
 		msg = fmt.Sprintf("Lỗi không tạo đươc tài khoản")
 	}
 	telegramParams.Text = msg
-	return false, config.GetTelegramMeEnglishSendMsgUrlConfig(telegramParams)
+	return false, msg, replyMarkup
 }

@@ -51,6 +51,12 @@ func ParamTelegramSendReplyMarkupWelcome() string {
 			"text": "Cùng phát triển",
 			"callback_data": "/develop"
 		}
+		],
+		[
+			{
+				"text": "Ủng hộ tác giả",
+				"callback_data": "/donate"
+			}
 		]
 	],
 	"resize_keyboard": true,
