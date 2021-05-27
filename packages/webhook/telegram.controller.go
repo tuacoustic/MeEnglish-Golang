@@ -83,16 +83,17 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 	case false: // Không dùng lệnh
 		switch strings.ToLower(telegramPushWB.Message.Text) {
 		case Command_Handling.StudyNowVie:
-			// msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), "*Test*")
-			// msg.ParseMode = telegramParams.ParseMode
-			// bot.Send(msg)
 			func(telegramVieRepo TelegramVieRepository) {
-				status, _ := telegramVieRepo.StudyNowVie(telegramPushWB)
+				status, text, replyMarkup := telegramVieRepo.StudyNowVie(telegramPushWB)
 				if status == true {
-					// sendReq.PostRequestToTelegram(url, "GET", "")
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					msg.ParseMode = telegramParams.ParseMode
+					msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
 					return
 				}
-				// sendReq.PostRequestToTelegram(url, "GET", "")
+				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+				msg.ParseMode = telegramParams.ParseMode
 				return
 			}(StudyNowVie)
 			break

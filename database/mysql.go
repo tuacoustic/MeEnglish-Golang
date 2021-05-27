@@ -45,7 +45,7 @@ func Auto() bool {
 	}
 	defer db.Close()
 
-	err = db.Debug().AutoMigrate(&entities.Vocabulary{}, &entities.AwlGroup{}, &entities.TelegramUsers{}, &entities.TelegramActiveCode{}, entities.TelegramUsersCommand{}).Error
+	err = db.Debug().AutoMigrate(&entities.Vocabulary{}, &entities.AwlGroup{}, &entities.TelegramUsers{}, &entities.TelegramActiveCode{}, entities.TelegramUsersCommand{}, entities.TelegramStudyCommand{}).Error
 	if err != nil {
 		log.Fatal(err)
 	}

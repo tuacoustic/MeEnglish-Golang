@@ -38,7 +38,7 @@ func ParamTelegramSendReplyMarkupWelcome() string {
 			"callback_data": "/notification"
 		},
 		{
-			"text": "Hướng dẫn",
+			"text": "Từ vựng đã lưu",
 			"callback_data": "/instruction"
 		}
 		],
