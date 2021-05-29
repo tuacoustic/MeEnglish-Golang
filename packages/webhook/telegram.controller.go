@@ -31,6 +31,7 @@ func ConnectWebhook() {
 		telegramPushWB.Message = TelegramRespMessageJSON{
 			MessageID: uint64(update.Message.Chat.ID),
 			Text:      update.Message.Text,
+			Date:      string(update.Message.Date),
 		}
 		telegramPushWB.Message.Chat.Type = update.Message.Chat.Type
 		telegramPushWB.Message.From = TelegramRespMessageFromJSON{
@@ -111,6 +112,22 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 			break
 		case Command_Handling.DonateVie:
 			console.Info("Ủng hộ tác giả")
+			break
+		default:
+			console.Info("Xuống đây")
+			initCondition := strings.ToLower(telegramPushWB.Message.Text)
+			console.Info(initCondition)
+			switch {
+			case strings.Contains(initCondition, ">pg") == true || strings.Contains(initCondition, ">gr") == true:
+				console.Info("Return")
+				break
+			case strings.Contains(initCondition, "pg") == true:
+				console.Info("Lấy theo page")
+				break
+			case strings.Contains(initCondition, "gr") == true:
+				console.Info("Lấy theo Group")
+				break
+			}
 		}
 	}
 	return

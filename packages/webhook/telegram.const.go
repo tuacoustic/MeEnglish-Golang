@@ -19,6 +19,7 @@ type textHandlingStruct struct {
 
 var (
 	msg            = ""
+	Limit_GetVocab = 15
 	telegramParams = config.SendTelegramMsgStruct{
 		ChatID:      uint64(664743441),
 		Text:        "Lỗi",
@@ -85,4 +86,50 @@ Lưu ý: Các bạn có thể click bên cạnh từ vựng để thấy chi ti�
 3. Trang Group
 4. Trở về Trang chính
 `, AwlGroupID, groupVocab)
+}
+
+func StudyNowVieReply(AwlGroupID uint64, currentPage uint32, pagination uint32) tgbotapi.ReplyKeyboardMarkup {
+	// console.Info("Pagination: ", pagination/15)
+	rollGroup := fmt.Sprintf("Học theo Group %d", AwlGroupID)
+	var respReply tgbotapi.ReplyKeyboardMarkup
+	var paginateLearnNowButton []tgbotapi.KeyboardButton
+	var paginateGroupButton1to5 []tgbotapi.KeyboardButton
+	var paginateGroupButton6to10 []tgbotapi.KeyboardButton
+
+	// Theo paginate
+	var maxPaginationNumber int = int(pagination / uint32(Limit_GetVocab))
+	if float64(pagination)/float64(Limit_GetVocab) > float64(maxPaginationNumber) {
+		maxPaginationNumber = maxPaginationNumber + 1
+	}
+	for indexPage := 1; indexPage <= maxPaginationNumber; indexPage++ {
+		if indexPage == int(currentPage) {
+			paginateLearnNowButton = append(paginateLearnNowButton, tgbotapi.NewKeyboardButton(fmt.Sprintf(">Pg%d", indexPage)))
+			continue
+		}
+		paginateLearnNowButton = append(paginateLearnNowButton, tgbotapi.NewKeyboardButton(fmt.Sprintf("Pg%d", indexPage)))
+	}
+	for indexGroup1to5 := 1; indexGroup1to5 <= 5; indexGroup1to5++ {
+		if indexGroup1to5 == int(AwlGroupID) {
+			paginateGroupButton1to5 = append(paginateGroupButton1to5, tgbotapi.NewKeyboardButton(fmt.Sprintf(">Gr%d", indexGroup1to5)))
+			continue
+		}
+		paginateGroupButton1to5 = append(paginateGroupButton1to5, tgbotapi.NewKeyboardButton(fmt.Sprintf("Gr%d", indexGroup1to5)))
+	}
+	for indexGroup6to10 := 6; indexGroup6to10 <= 10; indexGroup6to10++ {
+		if indexGroup6to10 == int(AwlGroupID) {
+			paginateGroupButton6to10 = append(paginateGroupButton6to10, tgbotapi.NewKeyboardButton(fmt.Sprintf(">Gr%d", indexGroup6to10)))
+			continue
+		}
+		paginateGroupButton6to10 = append(paginateGroupButton6to10, tgbotapi.NewKeyboardButton(fmt.Sprintf("Gr%d", indexGroup6to10)))
+	}
+	respReply = tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Back Home"),
+			tgbotapi.NewKeyboardButton(rollGroup),
+		),
+		paginateLearnNowButton,
+		paginateGroupButton1to5,
+		paginateGroupButton6to10,
+	)
+	return respReply
 }

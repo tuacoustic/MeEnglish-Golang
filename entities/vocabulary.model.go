@@ -50,3 +50,7 @@ type CountVocabulary struct {
 type GetStudyVocab struct {
 	Word string `gorm:"size:255;not null;unique" json:"word"` // Từ ngữ - Tiếng Anh
 }
+
+type CountAwlGroup struct {
+	Count uint32
+}

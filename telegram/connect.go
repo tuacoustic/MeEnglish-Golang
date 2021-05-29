@@ -12,7 +12,7 @@ func ConnectBot() (*tgbotapi.BotAPI, error) {
 	if err != nil {
 		return nil, err
 	}
-	bot.Debug = true
+	bot.Debug = false
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)

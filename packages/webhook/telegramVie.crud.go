@@ -24,6 +24,7 @@ func (r *repositoryTelegramVieCRUD) StudyNowVie(userData TelegramRespJSON) (bool
 
 	studyCommand := entities.GetTelegramStudyCommand{}
 	countStudyCommand := entities.CountTelegramStudyCommand{}
+	countVocabByGroup := entities.CountVocabulary{}
 	listsVocab := []entities.GetStudyVocab{}
 	var textArr []string
 	var replyMarkup tgbotapi.ReplyKeyboardMarkup
@@ -33,7 +34,6 @@ func (r *repositoryTelegramVieCRUD) StudyNowVie(userData TelegramRespJSON) (bool
 		// Count
 		queryCountStudyCommand := QueryTelegramStudyCommand()
 		r.db.Raw(queryCountStudyCommand).Find(&countStudyCommand)
-		// console.Info(studyCommand)
 		if countStudyCommand.Count > 0 {
 			// Tìm kiếm khoá học gần nhất -> send về page khoá học đó
 			err = r.db.Debug().Model(&entities.GetTelegramStudyCommand{}).Order("id desc").First(&studyCommand).Error
@@ -46,12 +46,26 @@ func (r *repositoryTelegramVieCRUD) StudyNowVie(userData TelegramRespJSON) (bool
 			return
 		}
 		// Ban đầu chưa có từ vựng học -> lấy tử vựng từ group 1
-		err = r.db.Debug().Model(&entities.GetStudyVocab{}).Where("awl_group_id = ?", "1").Find(&listsVocab).Error
+		// Đến số lượng từ Group 1 -> Chia paginate
+		queryCountVocab := QueryCountVocabByGroup(1)
+		r.db.Raw(queryCountVocab).Find(&countVocabByGroup)
+		err = r.db.Debug().Model(&entities.GetStudyVocab{}).Where("awl_group_id = ?", "1").Limit(Limit_GetVocab).Offset(1).Order("id desc").Find(&listsVocab).Error
 		if err != nil {
 			msg = "Oops Lỗi rồi, bạn thử lại sau nhé 😉"
 			ch <- false
 			return
 		}
+		// Create Study Command
+		createStudyCommand := entities.TelegramStudyCommand{
+			TelegramID: userData.Message.From.ID,
+			Username:   userData.Message.From.UserName,
+			Command:    "GET_GROUP_1",
+			TextInput:  userData.Message.Text,
+			AwlGroupID: 1,
+			Active:     true,
+			Timestamp:  userData.Message.Date,
+		}
+		r.db.Model(&entities.TelegramStudyCommand{}).Create(&createStudyCommand)
 		ch <- true
 		return
 	}(done)
@@ -70,7 +84,7 @@ func (r *repositoryTelegramVieCRUD) StudyNowVie(userData TelegramRespJSON) (bool
 		}
 		textArrToString := strings.Join(textArr, "")
 		text := StudyNowVie(1, textArrToString)
-		replyMarkup = StudyNowVie_Reply
+		replyMarkup = StudyNowVieReply(1, 1, countVocabByGroup.Count)
 		return true, text, replyMarkup
 	}
 	return true, msg, replyMarkup
