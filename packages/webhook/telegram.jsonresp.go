@@ -15,7 +15,7 @@ type TelegramRespMessageJSON struct {
 	Text      string                      `json:"text"`
 	Entities  []TelegramRespEntitiesJSON  `json:"entities"`
 	From      TelegramRespMessageFromJSON `json:"from"`
-	Date      string                      `json:"date"`
+	Date      int                         `json:"date"`
 }
 
 type TelegramRespChatJSON struct {

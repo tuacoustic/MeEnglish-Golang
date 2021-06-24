@@ -55,13 +55,13 @@ type OxfordCRUDJSON struct {
 	DefinitionAdverb    []string
 	DefinitionPhrasal   []string
 	// Examples         []OxfordResultLexical2EntriesSensesExamplesJSON
-	ExamplesNoun      []OxfordResultLexical2EntriesSensesExamplesJSON
-	ExamplesVerb      []OxfordResultLexical2EntriesSensesExamplesJSON
-	ExamplesAdjective []OxfordResultLexical2EntriesSensesExamplesJSON
-	ExamplesAdverb    []OxfordResultLexical2EntriesSensesExamplesJSON
-	ExamplesPhrasal   []OxfordResultLexical2EntriesSensesExamplesJSON
-	AudioFile         string
-	Dialects          []string
-	PhoneticSpelling  string
-	LexicalCategory   []string
+	ExampleNoun      []OxfordResultLexical2EntriesSensesExamplesJSON
+	ExampleVerb      []OxfordResultLexical2EntriesSensesExamplesJSON
+	ExampleAdjective []OxfordResultLexical2EntriesSensesExamplesJSON
+	ExampleAdverb    []OxfordResultLexical2EntriesSensesExamplesJSON
+	ExamplePhrasal   []OxfordResultLexical2EntriesSensesExamplesJSON
+	AudioFile        string
+	Dialects         []string
+	PhoneticSpelling string
+	LexicalCategory  []string
 }

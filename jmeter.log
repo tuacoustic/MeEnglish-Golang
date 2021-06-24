@@ -1,0 +1,29 @@
+2021-06-01 14:04:45,193 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2021-06-01 14:04:45,276 INFO o.a.j.JMeter: Loading user properties from: /usr/local/Cellar/jmeter/5.4.1/libexec/bin/user.properties
+2021-06-01 14:04:45,277 INFO o.a.j.JMeter: Loading system properties from: /usr/local/Cellar/jmeter/5.4.1/libexec/bin/system.properties
+2021-06-01 14:04:45,286 INFO o.a.j.JMeter: Copyright (c) 1998-2021 The Apache Software Foundation
+2021-06-01 14:04:45,286 INFO o.a.j.JMeter: Version 5.4.1
+2021-06-01 14:04:45,286 INFO o.a.j.JMeter: java.version=15.0.2
+2021-06-01 14:04:45,286 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2021-06-01 14:04:45,286 INFO o.a.j.JMeter: os.name=Mac OS X
+2021-06-01 14:04:45,286 INFO o.a.j.JMeter: os.arch=x86_64
+2021-06-01 14:04:45,287 INFO o.a.j.JMeter: os.version=10.15.3
+2021-06-01 14:04:45,287 INFO o.a.j.JMeter: file.encoding=UTF-8
+2021-06-01 14:04:45,287 INFO o.a.j.JMeter: java.awt.headless=null
+2021-06-01 14:04:45,287 INFO o.a.j.JMeter: Max memory     =1073741824
+2021-06-01 14:04:45,287 INFO o.a.j.JMeter: Available Processors =4
+2021-06-01 14:04:45,303 INFO o.a.j.JMeter: Default Locale=English (EN)
+2021-06-01 14:04:45,304 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2021-06-01 14:04:45,304 INFO o.a.j.JMeter: JMeterHome=/usr/local/Cellar/jmeter/5.4.1/libexec
+2021-06-01 14:04:45,304 INFO o.a.j.JMeter: user.dir  =/Users/tuacoustic/Desktop/go-source/MeEnglish
+2021-06-01 14:04:45,304 INFO o.a.j.JMeter: PWD       =/Users/tuacoustic/Desktop/go-source/MeEnglish
+2021-06-01 14:04:45,362 INFO o.a.j.JMeter: IP: 0.0.0.0 Name: tuacoustic FullName: tuacoustic
+2021-06-01 14:04:46,259 INFO o.a.j.JMeter: Setting LAF to: com.github.weisj.darklaf.DarkLaf:com.github.weisj.darklaf.theme.DarculaTheme
+2021-06-01 14:04:48,014 INFO o.a.j.JMeter: Loaded icon properties from org/apache/jmeter/images/icon.properties
+2021-06-01 14:04:49,645 INFO o.j.r.JARSourceHTTP: Found cached repo
+2021-06-01 14:04:49,829 INFO o.j.r.PluginManager: Plugins Status: [jpgc-plugins-manager=1.6, jmeter-core=5.4.1, jmeter-ftp=5.4.1, jmeter-http=5.4.1, jmeter-jdbc=5.4.1, jmeter-jms=5.4.1, jmeter-junit=5.4.1, jmeter-java=5.4.1, jmeter-ldap=5.4.1, jmeter-mail=5.4.1, jmeter-mongodb=5.4.1, jmeter-native=5.4.1, jmeter-tcp=5.4.1, jmeter-components=5.4.1]
+2021-06-01 14:05:04,116 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2021-06-01 14:05:04,116 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to ISO-8859-1
+2021-06-01 14:05:04,117 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2021-06-01 14:05:04,117 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2021-06-01 14:05:04,438 INFO o.a.j.v.ViewResultsFullVisualizer: Add JavaFX to your Java installation if you want to use renderer: org.apache.jmeter.visualizers.RenderInBrowser

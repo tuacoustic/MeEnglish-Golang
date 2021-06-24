@@ -14,6 +14,7 @@ import (
 )
 
 func listen(port int) {
+	webhook.ConnectWebhook()
 	r := router.New()
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port),
 		handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
@@ -28,7 +29,6 @@ func main() {
 	if status == true {
 		console.Info("Connect Mysql Successful")
 	}
-	webhook.ConnectWebhook()
 	console.Info("Listening [::]:", config.PORT)
 	listen(config.PORT)
 }

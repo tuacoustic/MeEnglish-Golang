@@ -31,7 +31,7 @@ func ConnectWebhook() {
 		telegramPushWB.Message = TelegramRespMessageJSON{
 			MessageID: uint64(update.Message.Chat.ID),
 			Text:      update.Message.Text,
-			Date:      string(update.Message.Date),
+			Date:      update.Message.Date,
 		}
 		telegramPushWB.Message.Chat.Type = update.Message.Chat.Type
 		telegramPushWB.Message.From = TelegramRespMessageFromJSON{
@@ -43,6 +43,7 @@ func ConnectWebhook() {
 		}
 		TelegramPushWebhook(telegramPushWB)
 	}
+	return
 }
 
 func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
@@ -55,12 +56,13 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 	if err != nil {
 		return
 	}
+	defer db.Close()
 	bot, err := telegram.ConnectBot()
 	if err != nil {
 		return
 	}
 	repo := NewRepositoryTelegramCRUD(db)
-	StudyNowVie := NewRepositoryTelegramVieCRUD(db)
+	GetStudyNowVie := NewRepositoryTelegramVieCRUD(db)
 	switch commandFlag {
 	case true: // Dùng lệnh
 		// Xử lý khi khách nhập start -> Tạo User vào Database
@@ -79,13 +81,10 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 				bot.Send(msg)
 				return
 			}(repo)
-		}
-		break
-	case false: // Không dùng lệnh
-		switch strings.ToLower(telegramPushWB.Message.Text) {
-		case Command_Handling.StudyNowVie:
+		} else {
+			// Tìm kiếm từ vựng
 			func(telegramVieRepo TelegramVieRepository) {
-				status, text, replyMarkup := telegramVieRepo.StudyNowVie(telegramPushWB)
+				status, text, replyMarkup := telegramVieRepo.FindVocab(telegramPushWB)
 				if status == true {
 					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 					msg.ParseMode = telegramParams.ParseMode
@@ -95,8 +94,30 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 				}
 				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 				msg.ParseMode = telegramParams.ParseMode
+				msg.ReplyMarkup = replyMarkup
+				bot.Send(msg)
 				return
-			}(StudyNowVie)
+			}(GetStudyNowVie)
+		}
+		break
+	case false: // Không dùng lệnh
+		switch strings.ToLower(telegramPushWB.Message.Text) {
+		case Command_Handling.GetStudyNowVie:
+			func(telegramVieRepo TelegramVieRepository) {
+				status, text, replyMarkup := telegramVieRepo.GetStudyNowVie(telegramPushWB)
+				if status == true {
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					msg.ParseMode = telegramParams.ParseMode
+					msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
+					return
+				}
+				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+				msg.ParseMode = telegramParams.ParseMode
+				msg.ReplyMarkup = replyMarkup
+				bot.Send(msg)
+				return
+			}(GetStudyNowVie)
 			break
 		case Command_Handling.AutoRemindVie:
 			console.Info("Nhắc học tự động")
@@ -105,27 +126,107 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 			console.Info("Hướng dẫn")
 			break
 		case Command_Handling.SupportVie:
-			console.Info("Gửi hỗ trợ")
+			msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), Support_Text)
+			msg.ParseMode = telegramParams.ParseMode
+			bot.Send(msg)
 			break
 		case Command_Handling.DevelopVie:
 			console.Info("Cùng phát triển")
 			break
 		case Command_Handling.DonateVie:
-			console.Info("Ủng hộ tác giả")
+			msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), Donate_Text)
+			msg.ParseMode = telegramParams.ParseMode
+			bot.Send(msg)
+			break
+		case Command_Handling.BackHome:
+			func(telegramVieRepo TelegramVieRepository) {
+				status, text, replyMarkup := telegramVieRepo.BackHomePage(telegramPushWB)
+				if status == true {
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					msg.ParseMode = telegramParams.ParseMode
+					msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
+					return
+				}
+				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+				msg.ParseMode = telegramParams.ParseMode
+				msg.ReplyMarkup = replyMarkup
+				bot.Send(msg)
+				return
+			}(GetStudyNowVie)
+			break
+		case Command_Handling.Continue:
+			func(telegramVieRepo TelegramVieRepository) {
+				status, text, replyMarkup := telegramVieRepo.GetStudyNowVie(telegramPushWB)
+				if status == true {
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					msg.ParseMode = telegramParams.ParseMode
+					msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
+					return
+				}
+				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+				msg.ParseMode = telegramParams.ParseMode
+				msg.ReplyMarkup = replyMarkup
+				bot.Send(msg)
+				return
+			}(GetStudyNowVie)
 			break
 		default:
-			console.Info("Xuống đây")
 			initCondition := strings.ToLower(telegramPushWB.Message.Text)
-			console.Info(initCondition)
 			switch {
-			case strings.Contains(initCondition, ">pg") == true || strings.Contains(initCondition, ">gr") == true:
-				console.Info("Return")
+			case strings.Contains(initCondition[0:3], Command_Handling.OnCurrentPage) == true || strings.Contains(initCondition, ">gr") == true:
 				break
-			case strings.Contains(initCondition, "pg") == true:
-				console.Info("Lấy theo page")
+			case strings.Contains(initCondition[0:2], Command_Handling.QueryPage) == true:
+				func(telegramVieRepo TelegramVieRepository) {
+					status, text, replyMarkup := telegramVieRepo.GetVocabByGroupPageVie(telegramPushWB)
+					if status == true {
+						msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+						msg.ParseMode = telegramParams.ParseMode
+						msg.ReplyMarkup = replyMarkup
+						bot.Send(msg)
+						return
+					}
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					// msg.ParseMode = telegramParams.ParseMode
+					// msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
+					return
+				}(GetStudyNowVie)
 				break
-			case strings.Contains(initCondition, "gr") == true:
-				console.Info("Lấy theo Group")
+			case strings.Contains(initCondition[0:2], Command_Handling.QueryGroup) == true:
+				func(telegramVieRepo TelegramVieRepository) {
+					status, text, replyMarkup := telegramVieRepo.GetVocabByGroupVie(telegramPushWB)
+					if status == true {
+						msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+						msg.ParseMode = telegramParams.ParseMode
+						msg.ReplyMarkup = replyMarkup
+						bot.Send(msg)
+						return
+					}
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					// msg.ParseMode = telegramParams.ParseMode
+					// msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
+					return
+				}(GetStudyNowVie)
+				break
+			case strings.Contains(initCondition[0:16], Command_Handling.GroupStudy) == true:
+				func(telegramVieRepo TelegramVieRepository) {
+					status, text, replyMarkup := telegramVieRepo.GroupStudy(telegramPushWB)
+					if status == true {
+						msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+						msg.ParseMode = telegramParams.ParseMode
+						msg.ReplyMarkup = replyMarkup
+						bot.Send(msg)
+						return
+					}
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					// msg.ParseMode = telegramParams.ParseMode
+					// msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
+					return
+				}(GetStudyNowVie)
 				break
 			}
 		}

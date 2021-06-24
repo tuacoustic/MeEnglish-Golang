@@ -57,20 +57,20 @@ where word = "%s"
 			ch <- false
 			return
 		}
-		for _, examplesNoun := range oxfordCrudData.ExamplesNoun {
-			inputExamplesNoun = append(inputExamplesNoun, fmt.Sprintf(`"%s"`, examplesNoun.Text))
+		for _, ExampleNoun := range oxfordCrudData.ExampleNoun {
+			inputExamplesNoun = append(inputExamplesNoun, fmt.Sprintf(`"%s"`, ExampleNoun.Text))
 		}
-		for _, examplesVerb := range oxfordCrudData.ExamplesVerb {
-			inputExamplesVerb = append(inputExamplesVerb, fmt.Sprintf(`"%s"`, examplesVerb.Text))
+		for _, ExampleVerb := range oxfordCrudData.ExampleVerb {
+			inputExamplesVerb = append(inputExamplesVerb, fmt.Sprintf(`"%s"`, ExampleVerb.Text))
 		}
-		for _, examplesAdjective := range oxfordCrudData.ExamplesAdjective {
-			inputExamplesAdjective = append(inputExamplesAdjective, fmt.Sprintf(`"%s"`, examplesAdjective.Text))
+		for _, ExampleAdjective := range oxfordCrudData.ExampleAdjective {
+			inputExamplesAdjective = append(inputExamplesAdjective, fmt.Sprintf(`"%s"`, ExampleAdjective.Text))
 		}
-		for _, examplesAdverb := range oxfordCrudData.ExamplesAdverb {
-			inputExamplesAdverb = append(inputExamplesAdverb, fmt.Sprintf(`"%s"`, examplesAdverb.Text))
+		for _, ExampleAdverb := range oxfordCrudData.ExampleAdverb {
+			inputExamplesAdverb = append(inputExamplesAdverb, fmt.Sprintf(`"%s"`, ExampleAdverb.Text))
 		}
-		for _, examplesPhrasal := range oxfordCrudData.ExamplesPhrasal {
-			inputExamplesPhrasal = append(inputExamplesPhrasal, fmt.Sprintf(`"%s"`, examplesPhrasal.Text))
+		for _, ExamplePhrasal := range oxfordCrudData.ExamplePhrasal {
+			inputExamplesPhrasal = append(inputExamplesPhrasal, fmt.Sprintf(`"%s"`, ExamplePhrasal.Text))
 		}
 		for _, lexicalCategory := range oxfordCrudData.LexicalCategory {
 			inputLexicalCategory = append(inputLexicalCategory, fmt.Sprintf(`"%s"`, lexicalCategory))
@@ -95,11 +95,11 @@ where word = "%s"
 			DefinitionAdjective: strings.Replace(ParseArrayToString(oxfordCrudData.DefinitionAdjective), "'", "", -1),
 			DefinitionAdverb:    strings.Replace(ParseArrayToString(oxfordCrudData.DefinitionAdverb), "'", "", -1),
 			DefinitionPhrasal:   strings.Replace(ParseArrayToString(oxfordCrudData.DefinitionPhrasal), "'", "", -1),
-			ExamplesNoun:        strings.Replace(ParseArrayToStringFor2More(inputExamplesNoun), "'", "", -1),
-			ExamplesVerb:        strings.Replace(ParseArrayToStringFor2More(inputExamplesVerb), "'", "", -1),
-			ExamplesAdjective:   strings.Replace(ParseArrayToStringFor2More(inputExamplesAdjective), "'", "", -1),
-			ExamplesAdverb:      strings.Replace(ParseArrayToStringFor2More(inputExamplesAdverb), "'", "", -1),
-			ExamplesPhrasal:     strings.Replace(ParseArrayToStringFor2More(inputExamplesPhrasal), "'", "", -1),
+			ExampleNoun:         strings.Replace(ParseArrayToStringFor2More(inputExamplesNoun), "'", "", -1),
+			ExampleVerb:         strings.Replace(ParseArrayToStringFor2More(inputExamplesVerb), "'", "", -1),
+			ExampleAdjective:    strings.Replace(ParseArrayToStringFor2More(inputExamplesAdjective), "'", "", -1),
+			ExampleAdverb:       strings.Replace(ParseArrayToStringFor2More(inputExamplesAdverb), "'", "", -1),
+			ExamplePhrasal:      strings.Replace(ParseArrayToStringFor2More(inputExamplesPhrasal), "'", "", -1),
 			AudioFile:           oxfordCrudData.AudioFile,
 			Dialects:            strings.Replace(ParseArrayToString(oxfordCrudData.Dialects), "'", "", -1),
 			PhoneticSpelling:    oxfordCrudData.PhoneticSpelling,
@@ -155,7 +155,7 @@ func DetechOxfordRespData(vocabRespData OxfordRespJSON) OxfordCRUDJSON {
 									Provider:       vocabRespData.Metadata.Provider,
 									Language:       results.Language,
 									DefinitionNoun: senses.Definitions,
-									ExamplesNoun:   getOxfordExamplesNoun,
+									ExampleNoun:    getOxfordExamplesNoun,
 								}
 							}
 						}
@@ -177,7 +177,7 @@ func DetechOxfordRespData(vocabRespData OxfordRespJSON) OxfordCRUDJSON {
 									Provider:       vocabRespData.Metadata.Provider,
 									Language:       results.Language,
 									DefinitionVerb: senses.Definitions,
-									ExamplesVerb:   getOxfordExamplesVerb,
+									ExampleVerb:    getOxfordExamplesVerb,
 								}
 							}
 						}
@@ -199,7 +199,7 @@ func DetechOxfordRespData(vocabRespData OxfordRespJSON) OxfordCRUDJSON {
 									Provider:            vocabRespData.Metadata.Provider,
 									Language:            results.Language,
 									DefinitionAdjective: senses.Definitions,
-									ExamplesAdjective:   getOxfordExamplesAdjective,
+									ExampleAdjective:    getOxfordExamplesAdjective,
 								}
 							}
 						}
@@ -221,7 +221,7 @@ func DetechOxfordRespData(vocabRespData OxfordRespJSON) OxfordCRUDJSON {
 									Provider:         vocabRespData.Metadata.Provider,
 									Language:         results.Language,
 									DefinitionAdverb: senses.Definitions,
-									ExamplesAdverb:   getOxfordExamplesAdverb,
+									ExampleAdverb:    getOxfordExamplesAdverb,
 								}
 							}
 						}
@@ -243,7 +243,7 @@ func DetechOxfordRespData(vocabRespData OxfordRespJSON) OxfordCRUDJSON {
 									Provider:          vocabRespData.Metadata.Provider,
 									Language:          results.Language,
 									DefinitionPhrasal: senses.Definitions,
-									ExamplesPhrasal:   getOxfordExamplesPhrasal,
+									ExamplePhrasal:    getOxfordExamplesPhrasal,
 								}
 							}
 						}

@@ -27,11 +27,11 @@ type Vocabulary struct {
 	DefinitionAdjective string    `gorm:"size:255" json:"definition_adjective"`                                                                                                                                       // Giải thích nghĩa tính từ
 	DefinitionAdverb    string    `gorm:"size:255" json:"definition_adverb"`                                                                                                                                          // Giải thích nghĩa trợ động từ
 	DefinitionPhrasal   string    `gorm:"size:255" json:"definition_phrasal"`                                                                                                                                         // Giải thích cụm động từ
-	ExamplesNoun        string    `gorm:"type:text" json:"examples_noun"`                                                                                                                                             // Ví dụ về danh từ
-	ExamplesVerb        string    `gorm:"type:text" json:"examples_verb"`                                                                                                                                             // Ví dụ về động từ
-	ExamplesAdjective   string    `gorm:"type:text" json:"examples_adjective"`                                                                                                                                        // Ví dụ về tính từ
-	ExamplesAdverb      string    `gorm:"type:text" json:"examples_adverb"`                                                                                                                                           // Ví dụ về trợ động từ
-	ExamplesPhrasal     string    `gorm:"type:text" json:"examples_phrasal"`                                                                                                                                          // Ví dụ về cụm động từ
+	ExampleNoun         string    `gorm:"type:text" json:"examples_noun"`                                                                                                                                             // Ví dụ về danh từ
+	ExampleVerb         string    `gorm:"type:text" json:"examples_verb"`                                                                                                                                             // Ví dụ về động từ
+	ExampleAdjective    string    `gorm:"type:text" json:"examples_adjective"`                                                                                                                                        // Ví dụ về tính từ
+	ExampleAdverb       string    `gorm:"type:text" json:"examples_adverb"`                                                                                                                                           // Ví dụ về trợ động từ
+	ExamplePhrasal      string    `gorm:"type:text" json:"examples_phrasal"`                                                                                                                                          // Ví dụ về cụm động từ
 	AudioFile           string    `gorm:"size:255" json:"audio_file"`                                                                                                                                                 // Phát âm chuẩn bản xứ
 	Dialects            string    `gorm:"size:100:default:'American English'" json:"dialects"`                                                                                                                        // Kiểu Tiếng Anh, vd: American English
 	PhoneticSpelling    string    `gorm:"size:100" json:"phonetic_spelling"`                                                                                                                                          // Phiên âm
@@ -39,6 +39,7 @@ type Vocabulary struct {
 	Unit                string    `gorm:"size:50;default:'Unit 1'" json:"unit"`                                                                                                                                       // Unit trong sách
 	Book                string    `gorm:"size:100;default:'Destination B1'" json:"book"`                                                                                                                              // Sách
 	Level               string    `gorm:"size:3;default:'A1'" json:"level"`                                                                                                                                           // Trình độ từ vựng, vd: A2, C1
+	PageNumber          uint64    `gorm:"size:2;default:1" json:"page_number"`                                                                                                                                        // limit 15 theo page
 	CreatedAt           time.Time `gorm:"default:current_timestamp" json:"created_at"`
 	UpdatedAt           time.Time `gorm:"default:current_timestamp" json:"updated_at"`
 }
@@ -53,4 +54,25 @@ type GetStudyVocab struct {
 
 type CountAwlGroup struct {
 	Count uint32
+}
+
+type FindVocab struct {
+	Word                string `gorm:"size:255;not null;unique" json:"word"`                                                                                                                             // Từ ngữ - Tiếng Anh
+	PhoneticSpelling    string `gorm:"size:100" json:"phonetic_spelling"`                                                                                                                                // Phiên âm
+	LexicalCategory     string `gorm:"size:50" json:"lexicalCategory"`                                                                                                                                   // Đóng Vai trò gì -> chung, vd: noun | verb | adjective | adverb | phrasal
+	AudioFile           string `gorm:"size:255" json:"audio_file"`                                                                                                                                       // Phát âm chuẩn bản xứ
+	Image               string `gorm:"size:255;default:'https://st4.depositphotos.com/14953852/24787/v/600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg'" json:"image"` // Hình ảnh giải thích chung
+	Vi                  string `gorm:"size:255" json:"vi"`                                                                                                                                               // Nghĩa tiếng Việt chung
+	DefinitionNoun      string `gorm:"size:255" json:"definition_noun"`                                                                                                                                  // Giải thích nghĩa danh từ
+	DefinitionVerb      string `gorm:"size:255" json:"definition_verb"`                                                                                                                                  // Giải thích nghĩa động từ
+	DefinitionAdjective string `gorm:"size:255" json:"definition_adjective"`                                                                                                                             // Giải thích nghĩa tính từ
+	DefinitionAdverb    string `gorm:"size:255" json:"definition_adverb"`                                                                                                                                // Giải thích nghĩa trợ động từ
+	DefinitionPhrasal   string `gorm:"size:255" json:"definition_phrasal"`                                                                                                                               // Giải thích cụm động từ
+	ExampleNoun         string `gorm:"type:text" json:"examples_noun"`                                                                                                                                   // Ví dụ về danh từ
+	ExampleVerb         string `gorm:"type:text" json:"examples_verb"`                                                                                                                                   // Ví dụ về động từ
+	ExampleAdjective    string `gorm:"type:text" json:"examples_adjective"`                                                                                                                              // Ví dụ về tính từ
+	ExampleAdverb       string `gorm:"type:text" json:"examples_adverb"`                                                                                                                                 // Ví dụ về trợ động từ
+	ExamplePhrasal      string `gorm:"type:text" json:"examples_phrasal"`                                                                                                                                // Ví dụ về cụm động từ
+	PageNumber          uint64 `gorm:"size:2;default:1" json:"page_number"`                                                                                                                              // limit 15 theo page
+	AwlGroupID          uint64 `json:"academic_group_id"`                                                                                                                                                // ID của từ vựng
 }

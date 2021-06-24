@@ -1,4 +1,25 @@
+```
+GROUP 1
+```
+🔑 *Sector* (ˈsɛktər) (noun): Khu vực kinh tế
+Audio: /audio_sector 
+Image: /image_sector
 
+*Definition*
+Noun: an area or portion that is distinct from others
+
+*Examples*
+Noun: operations in the southern sector of the North Sea
+
+🔍 sector (/sector) • available (/available)
+financial (/financial) • process (/process)
+individual (/individual) • specific (/specific)
+principle (/principle) • estimate (/estimate)
+variables (/variables) • method (/method)
+data (/data) • research (/research)
+contract (/contract) • environment (/environment)
+export (/export) • source (/source)
+<!-- 
 ```
 From TuDinh
 ```
@@ -30,7 +51,9 @@ export (/export) • source (/source)
 
 •  •  •  • assessment (/assessment) • policy (/policy) • identified • create • derived • factors • procedure • definition • assume • theory • benefit • evidence • established • authority • major • issues • labour • occur • economic • involved • percent • interpretation • consistent • income • structure • legal • concept • formula • section • required • constitutional • analysis • distribution • function • area • approach • role • legislation • indicate • response • period • context • significant • similar
 [I'm an inline-style link with title](https://www.google.com "Google's Homepage")
-<a href='/start'>Start</a>
+<a href='/start'>Start</a> -->
+
+
 
 
 
