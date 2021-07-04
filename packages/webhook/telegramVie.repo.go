@@ -10,4 +10,6 @@ type TelegramVieRepository interface {
 	BackHomePage(TelegramRespJSON) (bool, string, tgbotapi.ReplyKeyboardMarkup)
 	GroupStudy(TelegramRespJSON) (bool, string, tgbotapi.ReplyKeyboardMarkup)
 	FindVocab(TelegramRespJSON) (bool, string, tgbotapi.ReplyKeyboardMarkup)
+	FindAudio(TelegramRespJSON) (bool, string, error)
+	FindImage(TelegramRespJSON) (bool, string, error)
 }

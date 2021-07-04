@@ -13,6 +13,8 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.3.0
 	github.com/sirupsen/logrus v1.8.1
+	github.com/t-tiger/gorm-bulk-insert v1.3.0
+	github.com/t-tiger/gorm-bulk-insert/v2 v2.0.1
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	go.mongodb.org/mongo-driver v1.5.2
 	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect

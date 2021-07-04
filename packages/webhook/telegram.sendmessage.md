@@ -1,4 +1,20 @@
-```
+*📌 Bạn đang học Group 1*
+
+Vui lòng cung cấp đáp án dưới:
+🔑 ----- (##) (##): Khu vực kinh tế
+
+*Definition*
+Noun: an area or portion that is distinct from others
+
+*Example*
+Noun: operations in the southern ***** of the North Sea
+
+A. Sector
+B. Available
+C. Financal
+D. Process
+
+<!-- ```
 GROUP 1
 ```
 🔑 *Sector* (ˈsɛktər) (noun): Khu vực kinh tế
@@ -18,7 +34,7 @@ principle (/principle) • estimate (/estimate)
 variables (/variables) • method (/method)
 data (/data) • research (/research)
 contract (/contract) • environment (/environment)
-export (/export) • source (/source)
+export (/export) • source (/source) -->
 <!-- 
 ```
 From TuDinh

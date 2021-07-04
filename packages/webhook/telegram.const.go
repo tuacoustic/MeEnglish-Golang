@@ -1,6 +1,7 @@
 package webhook
 
 import (
+	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"me-english/entities"
@@ -11,7 +12,7 @@ import (
 )
 
 type textHandlingStruct struct {
-	StartBot       string
+	BotCommand     string
 	GetStudyNowVie string
 	AutoRemindVie  string
 	InstructionVie string
@@ -25,6 +26,9 @@ type textHandlingStruct struct {
 	OnCurrentGroup string
 	OnCurrentPage  string
 	GroupStudy     string
+	StartBot       string
+	GetAudio       string
+	GetImage       string
 }
 
 type commandGetGroupStruct struct {
@@ -51,7 +55,7 @@ var (
 		ParseMode:   "markdown",
 	}
 	Command_Handling = textHandlingStruct{
-		StartBot:       "/",
+		BotCommand:     "/",
 		GetStudyNowVie: "học ngay",
 		AutoRemindVie:  "nhắc học tự động",
 		InstructionVie: "từ vựng đã lưu",
@@ -65,6 +69,9 @@ var (
 		OnCurrentGroup: ">gr",
 		OnCurrentPage:  ">pg",
 		GroupStudy:     "học theo group",
+		StartBot:       "/start",
+		GetAudio:       "/audio@",
+		GetImage:       "/image@",
 	}
 	Home_Reply = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
@@ -115,18 +122,21 @@ var (
 			tgbotapi.NewKeyboardButton(HomeButtonText),
 		),
 	)
-	// Command_GetGroup = commandGetGroupStruct{
-	// 	Group1:  "GET_GROUP_1",
-	// 	Group2:  "GET_GROUP_2",
-	// 	Group3:  "GET_GROUP_3",
-	// 	Group4:  "GET_GROUP_4",
-	// 	Group5:  "GET_GROUP_5",
-	// 	Group6:  "GET_GROUP_6",
-	// 	Group7:  "GET_GROUP_7",
-	// 	Group8:  "GET_GROUP_8",
-	// 	Group9:  "GET_GROUP_9",
-	// 	Group10: "GET_GROUP_10",
-	// }
+	AnswerKey_Reply = tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Trang chủ"),
+			tgbotapi.NewKeyboardButton("Học Group khác"),
+		),
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Answer A"),
+			tgbotapi.NewKeyboardButton("Answer B"),
+			tgbotapi.NewKeyboardButton("Answer C"),
+			tgbotapi.NewKeyboardButton("Answer D"),
+		),
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Quit the answer"),
+		),
+	)
 	Command_GetGroup = "GET_GROUP"
 	Donate_Text      = fmt.Sprintf(`
 *Thông tin tài khoản*
@@ -251,12 +261,13 @@ func VocabDetailText(AwlGroupID uint64, vocabData entities.FindVocab, listsVocab
 	definition := getDefinition(vocabData)
 	example := getExample(vocabData)
 	textArrToString := strings.Join(listsVocabArr, "")
+	encodeBase64 := b64.StdEncoding.EncodeToString([]byte(strings.ToLower(vocabData.Word)))
 	return fmt.Sprintf(`
 *GROUP %d*
 
 🔑 *%s* (%s) (%s): %s
-Audio: /audio%s﹒
-Image: /image%s﹒
+Audio: /audio@%s﹒
+Image: /image@%s﹒
 
 *Definition*
 %s
@@ -265,7 +276,7 @@ Image: /image%s﹒
 %s
 
 %s
-`, AwlGroupID, strings.Title(strings.ToLower(vocabData.Word)), vocabData.PhoneticSpelling, strings.Join(lexicalCategoryArr, "|"), vocabData.Vi, vocabData.Word, vocabData.Word, strings.Join(definition, "\n"), strings.Join(example, "\n"), textArrToString)
+`, AwlGroupID, strings.Title(strings.ToLower(vocabData.Word)), vocabData.PhoneticSpelling, strings.Join(lexicalCategoryArr, "|"), vocabData.Vi, vocabData.Word, encodeBase64, strings.Join(definition, "\n"), strings.Join(example, "\n"), textArrToString)
 }
 
 func getDefinition(defiData entities.FindVocab) []string {
@@ -327,3 +338,35 @@ func getExample(exData entities.FindVocab) []string {
 	}
 	return exampleArr
 }
+
+func VocabAnswerLists(AwlGroupID uint64, vocabData entities.FindVocab, answerKeyLists []string) string {
+	var lexicalCategoryArr []string
+	json.Unmarshal([]byte(vocabData.LexicalCategory), &lexicalCategoryArr)
+	definition := getDefinition(vocabData)
+	example := getExample(vocabData)
+	encodeBase64 := b64.StdEncoding.EncodeToString([]byte(strings.ToLower(vocabData.Word)))
+	var addTheAnswer []string
+	key := []string{"A", "B", "C", "D"}
+	for index, value := range answerKeyLists {
+		addTheAnswer = append(addTheAnswer, fmt.Sprintf("%s. %s", key[index], value))
+	}
+	return fmt.Sprintf(`
+*📌 Bạn đang học Group %d*
+
+Vui lòng cung cấp đáp án dưới:
+🔑 ----- (##) (##): %s
+Image: /image@%s
+
+*Definition*
+%s
+
+*Example*
+%s
+
+%s
+`, AwlGroupID, vocabData.Vi, encodeBase64, strings.Join(definition, "\n"), strings.Join(example, "\n"), strings.Join(addTheAnswer, "\n"))
+}
+
+// func AnswerKeyReply() tgbotapi.ReplyKeyboardMarkup {
+
+// }

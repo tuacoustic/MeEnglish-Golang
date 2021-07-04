@@ -13,9 +13,17 @@ import (
 // Kết nối cơ sở dữ liệu
 func MysqlConnect() (*gorm.DB, error) {
 	db, err := gorm.Open(config.MYSQL_DB_DRIVER, config.MYSQL_DB_URL)
-	// db.DB().SetMaxIdleConns(10)
-	// db.DB().SetMaxOpenConns(7)
-	// db.DB().SetConnMaxLifetime(time.Hour)
+	// Get generic database object sql.DB to use its functions
+	sqlDB := db.DB()
+
+	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+	sqlDB.SetMaxIdleConns(10)
+
+	// SetMaxOpenConns sets the maximum number of open connections to the database.
+	sqlDB.SetMaxOpenConns(100)
+
+	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
+	sqlDB.SetConnMaxLifetime(30 * 60)
 	db.SingularTable(true)
 	if err != nil {
 		console.Error("Lỗi kết nối Database, err: ", err)
@@ -45,7 +53,7 @@ func Auto() bool {
 	}
 	defer db.Close()
 
-	err = db.Debug().AutoMigrate(&entities.Vocabulary{}, &entities.AwlGroup{}, &entities.TelegramUsers{}, &entities.TelegramActiveCode{}, entities.TelegramUsersCommand{}, entities.TelegramStudyCommand{}).Error
+	err = db.Debug().AutoMigrate(&entities.Vocabulary{}, &entities.AwlGroup{}, &entities.TelegramUsers{}, &entities.TelegramActiveCode{}, entities.TelegramUsersCommand{}, entities.TelegramStudyCommand{}, entities.StudyVocabLists{}, entities.AnswerKey{}).Error
 	if err != nil {
 		log.Fatal(err)
 	}

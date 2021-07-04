@@ -1,6 +1,7 @@
 package webhook
 
 import (
+	"fmt"
 	"log"
 	"me-english/database"
 	"me-english/telegram"
@@ -49,14 +50,14 @@ func ConnectWebhook() {
 func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 	var commandFlag bool = false
 	isCommand := string(telegramPushWB.Message.Text[0])
-	if isCommand == Command_Handling.StartBot {
+	if isCommand == Command_Handling.BotCommand {
 		commandFlag = true
 	}
 	db, err := database.MysqlConnect()
 	if err != nil {
 		return
 	}
-	defer db.Close()
+	// defer db.Close()
 	bot, err := telegram.ConnectBot()
 	if err != nil {
 		return
@@ -64,9 +65,11 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 	repo := NewRepositoryTelegramCRUD(db)
 	GetStudyNowVie := NewRepositoryTelegramVieCRUD(db)
 	switch commandFlag {
+	// Xử lý khi khách nhập start -> Tạo User vào Database
 	case true: // Dùng lệnh
-		// Xử lý khi khách nhập start -> Tạo User vào Database
-		if telegramPushWB.Message.Text == "/start" {
+		initCondition := strings.ToLower(telegramPushWB.Message.Text)
+		switch {
+		case strings.Contains(initCondition[0:6], Command_Handling.StartBot) == true:
 			func(telegramRepo TelegramRepository) {
 				status, text, replyMarkup := telegramRepo.CreateUser(telegramPushWB)
 				if status == true {
@@ -81,23 +84,54 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 				bot.Send(msg)
 				return
 			}(repo)
-		} else {
+			break
+		case strings.Contains(initCondition[0:7], Command_Handling.GetAudio) == true:
+			func(telegramVieRepo TelegramVieRepository) {
+				status, filePath, errMsg := telegramVieRepo.FindAudio(telegramPushWB)
+				if status == true {
+					var msg tgbotapi.AudioConfig
+					msg = tgbotapi.NewAudioShare(int64(telegramPushWB.Message.From.ID), filePath)
+					bot.Send(msg)
+					return
+				}
+				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), fmt.Sprintf("%s", errMsg))
+				bot.Send(msg)
+				return
+			}(GetStudyNowVie)
+			break
+		case strings.Contains(initCondition[0:7], Command_Handling.GetImage) == true:
+			func(telegramVieRepo TelegramVieRepository) {
+				status, filePath, errMsg := telegramVieRepo.FindImage(telegramPushWB)
+				if status == true {
+					console.Info(filePath)
+					var msg tgbotapi.PhotoConfig
+					msg = tgbotapi.NewPhotoShare(int64(telegramPushWB.Message.From.ID), filePath)
+					bot.Send(msg)
+					return
+				}
+				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), fmt.Sprintf("%s", errMsg))
+				bot.Send(msg)
+				return
+			}(GetStudyNowVie)
+			break
+		default:
 			// Tìm kiếm từ vựng
 			func(telegramVieRepo TelegramVieRepository) {
-				status, text, replyMarkup := telegramVieRepo.FindVocab(telegramPushWB)
+				status, text, _ := telegramVieRepo.FindVocab(telegramPushWB)
 				if status == true {
 					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 					msg.ParseMode = telegramParams.ParseMode
-					msg.ReplyMarkup = replyMarkup
+					// msg.ReplyMarkup = replyMarkup
 					bot.Send(msg)
 					return
 				}
 				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 				msg.ParseMode = telegramParams.ParseMode
-				msg.ReplyMarkup = replyMarkup
+				// msg.ReplyMarkup = replyMarkup
 				bot.Send(msg)
 				return
 			}(GetStudyNowVie)
+			break
 		}
 		break
 	case false: // Không dùng lệnh

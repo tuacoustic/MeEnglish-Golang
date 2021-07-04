@@ -57,6 +57,7 @@ type CountAwlGroup struct {
 }
 
 type FindVocab struct {
+	ID                  uint64 `gorm:"primary_key;auto_increment" json:"id"`
 	Word                string `gorm:"size:255;not null;unique" json:"word"`                                                                                                                             // Từ ngữ - Tiếng Anh
 	PhoneticSpelling    string `gorm:"size:100" json:"phonetic_spelling"`                                                                                                                                // Phiên âm
 	LexicalCategory     string `gorm:"size:50" json:"lexicalCategory"`                                                                                                                                   // Đóng Vai trò gì -> chung, vd: noun | verb | adjective | adverb | phrasal

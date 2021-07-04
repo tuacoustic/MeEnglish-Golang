@@ -65,3 +65,23 @@ func ParamTelegramSendReplyMarkupWelcome() string {
 }
 `)
 }
+
+func ParamTelegramSendStudyAnswer(telegramName string, userNumber int64) string {
+	return fmt.Sprintf(`
+*📌 Bạn đang học Group 1*
+
+Vui lòng cung cấp đáp án dưới:
+🔑 ----- (##) (##): Khu vực kinh tế
+
+*Definition*
+Noun: an area or portion that is distinct from others
+
+*Example*
+Noun: operations in the southern ***** of the North Sea
+
+A. Sector
+B. Available
+C. Financal
+D. Process
+`)
+}
