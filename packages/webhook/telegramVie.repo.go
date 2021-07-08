@@ -12,4 +12,5 @@ type TelegramVieRepository interface {
 	FindVocab(TelegramRespJSON) (bool, string, tgbotapi.ReplyKeyboardMarkup)
 	FindAudio(TelegramRespJSON) (bool, string, error)
 	FindImage(TelegramRespJSON) (bool, string, error)
+	AnswerQuestionButton(TelegramRespJSON) (bool, string, error)
 }

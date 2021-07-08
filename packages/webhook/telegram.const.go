@@ -29,6 +29,8 @@ type textHandlingStruct struct {
 	StartBot       string
 	GetAudio       string
 	GetImage       string
+	AnswerButton   string
+	TrueAnswer     string
 }
 
 type commandGetGroupStruct struct {
@@ -72,6 +74,8 @@ var (
 		StartBot:       "/start",
 		GetAudio:       "/audio@",
 		GetImage:       "/image@",
+		AnswerButton:   "answer",
+		TrueAnswer:     "bạn trả lời đúng",
 	}
 	Home_Reply = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(

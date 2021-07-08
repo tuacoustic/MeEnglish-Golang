@@ -245,6 +245,23 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 					return
 				}(GetStudyNowVie)
 				break
+			case strings.Contains(initCondition[0:6], Command_Handling.AnswerButton) == true:
+				func(telegramVieRepo TelegramVieRepository) {
+					status, text, replyMarkup := telegramVieRepo.AnswerQuestionButton(telegramPushWB)
+					if status == true {
+						msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+						msg.ParseMode = telegramParams.ParseMode
+						msg.ReplyMarkup = replyMarkup
+						bot.Send(msg)
+						return
+					}
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					// msg.ParseMode = telegramParams.ParseMode
+					// msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
+					return
+				}(GetStudyNowVie)
+				break
 			case strings.Contains(initCondition[0:16], Command_Handling.GroupStudy) == true:
 				func(telegramVieRepo TelegramVieRepository) {
 					status, text, replyMarkup := telegramVieRepo.GroupStudy(telegramPushWB)
@@ -260,6 +277,22 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 					// msg.ReplyMarkup = replyMarkup
 					bot.Send(msg)
 					return
+				}(GetStudyNowVie)
+				break
+			case strings.Contains(initCondition[0:16], Command_Handling.TrueAnswer) == true:
+				func(telegramVieRepo TelegramVieRepository) {
+					status, text, replyMarkup := telegramVieRepo.GroupStudy(telegramPushWB)
+					if status == true {
+						msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+						msg.ParseMode = telegramParams.ParseMode
+						msg.ReplyMarkup = replyMarkup
+						bot.Send(msg)
+						return
+					}
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					// msg.ParseMode = telegramParams.ParseMode
+					// msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
 				}(GetStudyNowVie)
 				break
 			}

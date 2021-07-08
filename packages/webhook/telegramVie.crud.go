@@ -4,15 +4,18 @@ import (
 	b64 "encoding/base64"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"me-english/entities"
 	"me-english/utils/channels"
+	"me-english/utils/console"
 	"strconv"
 	"strings"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jinzhu/gorm"
+	gormbulk "github.com/t-tiger/gorm-bulk-insert"
 )
 
 type repositoryTelegramVieCRUD struct {
@@ -407,13 +410,14 @@ func (r *repositoryTelegramVieCRUD) BackHomePage(userData TelegramRespJSON) (boo
 func (r *repositoryTelegramVieCRUD) GroupStudy(userData TelegramRespJSON) (bool, string, tgbotapi.ReplyKeyboardMarkup) {
 	var err error
 	var replyMarkup tgbotapi.ReplyKeyboardMarkup
-	// getTeleStudyCommand := entities.GetTelegramStudyCommand{}
-	// getTeleStudyCommandExist := entities.GetTelegramStudyCommand{}
+	getTeleStudyCommand := entities.GetTelegramStudyCommand{}
+	getTeleStudyCommandExist := entities.GetTelegramStudyCommand{}
 	getVocabInfo := []entities.FindVocab{}
 	getRandomVocabInfo := []entities.FindVocab{}
 	countAnswerKey := entities.CountAnswerKey{}
-	// getStudyVocab := entities.StudyVocabLists{}
-	// var bulkInsertVocabLists []interface{}
+	getStudyVocab := entities.StudyVocabLists{}
+	getExistVocabListItem := entities.StudyVocabLists{}
+	var bulkInsertVocabLists []interface{}
 	var numberOfGroupStudy string
 	var vocabAnswerLists []string
 	getVocabDetail := entities.FindVocab{}
@@ -439,71 +443,111 @@ func (r *repositoryTelegramVieCRUD) GroupStudy(userData TelegramRespJSON) (bool,
 			ch <- false
 			return
 		}
-		// // Find Study Group
-		// r.db.Debug().Table("telegram_study_command").Select("command").Where("command = ? and active = true and awl_group_id = ?", EnumStudyCommand.StudyCommand, sendNumberOfGroup).First(&getTeleStudyCommand)
-		// // Find Study Vocab Lists
-		// r.db.Debug().Table("study_vocab_lists").Select("id").Where("customer_id = ? and awl_group_id = ?", userData.Message.From.ID, sendNumberOfGroup).First(&getStudyVocab)
-		// if getTeleStudyCommand.Command == "" {
-		// 	// Tìm User này đã từng học Group nào chưa
-		// 	r.db.Debug().Table("telegram_study_command").Select("ID").Where("command = ? and active = true", EnumStudyCommand.StudyCommand).First(&getTeleStudyCommandExist)
-		// 	if getTeleStudyCommandExist.Command == "" && getStudyVocab.ID == 0 {
-		// 		// Tạo Vocab theo page 1 vào bảng study_vocab_lists cho User
-		// 		maxInsert := len(getVocabInfo)
-		// 		for index := 0; index < maxInsert; index++ {
-		// 			bulkInsertVocabLists = append(bulkInsertVocabLists,
-		// 				entities.StudyVocabLists{
-		// 					VocabularyID: getVocabInfo[index].ID,
-		// 					TelegramID:   userData.Message.From.ID,
-		// 					Active:       true,
-		// 					AwlGroupID:   getVocabInfo[index].AwlGroupID,
-		// 					PageNumber:   getVocabInfo[index].PageNumber,
-		// 				},
-		// 			)
-		// 		}
-		// 		err = gormbulk.BulkInsert(r.db, bulkInsertVocabLists, maxInsert)
-		// 		if err != nil {
-		// 			msg = "Tạo từ vựng lỗi, Bạn vui lòng thử lại nhé"
-		// 			log.Fatal(err)
-		// 		}
-		// 		// Chưa từng học Group nào -> Tạo cho telegram_study_command = STUDY_GROUP
-		// 		createStudyCommand := entities.TelegramStudyCommand{
-		// 			TelegramID: userData.Message.From.ID,
-		// 			Username:   userData.Message.From.UserName,
-		// 			Command:    EnumStudyCommand.StudyCommand,
-		// 			TextInput:  userData.Message.Text,
-		// 			AwlGroupID: uint64(sendNumberOfGroup),
-		// 			Active:     true,
-		// 			Timestamp:  userData.Message.Date,
-		// 		}
-		// 		err = r.db.Debug().Model(&entities.TelegramStudyCommand{}).Create(&createStudyCommand).Error
-		// 		if err != nil {
-		// 			console.Info(err)
-		// 			ch <- false
-		// 			return
-		// 		}
+		// Find Study Group
+		r.db.Debug().Table("telegram_study_command").Select("command").Where("command = ? and active = true and awl_group_id = ?", EnumStudyCommand.StudyCommand, sendNumberOfGroup).First(&getTeleStudyCommand)
+		if getTeleStudyCommand.Command == "" {
+			// Find Study Vocab Lists
+			r.db.Debug().Table("study_vocab_lists").Select("id").Where("telegram_id = ? and awl_group_id = ?", userData.Message.From.ID, sendNumberOfGroup).First(&getStudyVocab)
+			// Tìm User này đã từng học Group nào chưa
+			r.db.Debug().Table("telegram_study_command").Select("ID").Where("command = ? and active = true", EnumStudyCommand.StudyCommand).First(&getTeleStudyCommandExist)
+			if getTeleStudyCommandExist.Command == "" && getStudyVocab.ID == 0 {
+				// Tạo Vocab theo page 1 vào bảng study_vocab_lists cho User
+				maxInsert := len(getVocabInfo)
+				for index := 0; index < maxInsert; index++ {
+					bulkInsertVocabLists = append(bulkInsertVocabLists,
+						entities.StudyVocabLists{
+							VocabularyID: getVocabInfo[index].ID,
+							TelegramID:   userData.Message.From.ID,
+							Active:       true,
+							AwlGroupID:   getVocabInfo[index].AwlGroupID,
+							PageNumber:   getVocabInfo[index].PageNumber,
+						},
+					)
+				}
+				err = gormbulk.BulkInsert(r.db, bulkInsertVocabLists, maxInsert)
+				if err != nil {
+					msg = "Tạo từ vựng lỗi, Bạn vui lòng thử lại nhé"
+					log.Fatal(err)
+				}
+				// Chưa từng học Group nào -> Tạo cho telegram_study_command = STUDY_GROUP
+				createStudyCommand := entities.TelegramStudyCommand{
+					TelegramID: userData.Message.From.ID,
+					Username:   userData.Message.From.UserName,
+					Command:    EnumStudyCommand.StudyCommand,
+					TextInput:  userData.Message.Text,
+					AwlGroupID: uint64(sendNumberOfGroup),
+					Active:     true,
+					Timestamp:  userData.Message.Date,
+				}
+				err = r.db.Debug().Model(&entities.TelegramStudyCommand{}).Create(&createStudyCommand).Error
+				if err != nil {
+					console.Info(err)
+					ch <- false
+					return
+				}
+				// Create answer key
+				// Get Detail Vocab
+				r.db.Debug().Table("vocabulary").Where("word like ?", getVocabInfo[0].Word).First(&getVocabDetail)
+
+				// Query Random
+				r.db.Table("vocabulary").Select("word").Where("id != ?", getVocabInfo[0].ID).Limit(3).Order("RAND()").Find(&getRandomVocabInfo)
+				for _, value := range getRandomVocabInfo {
+					vocabAnswerLists = append(vocabAnswerLists, value.Word)
+				}
+				vocabAnswerLists = append(vocabAnswerLists, getVocabInfo[0].Word)
+				expTimeAnswer := time.Now().Unix() + (int64(1 * 60))
+				answerFromArr := randomAnswerFromArray(vocabAnswerLists)
+				abcd := []string{"a", "b", "c", "d"}
+				var answerKey string
+				for index, value := range answerFromArr {
+					if value == getVocabInfo[0].Word {
+						answerKey = abcd[index]
+					}
+				}
+				r.db.Debug().Table("answer_key").Select("count(id) as count").Where("telegram_id = ? and vocabulary_id = ? and expired_at > ?", userData.Message.From.ID, getVocabInfo[0].ID, time.Now().Unix()).First(&countAnswerKey)
+				// Đã có câu trả lời
+				if countAnswerKey.Count > 0 {
+					msg = "Bạn thao tác nhanh quá, sống chậm lại nhé"
+					ch <- false
+					return
+				}
+				createAnswerKey := entities.AnswerKey{
+					TelegramID:   userData.Message.From.ID,
+					VocabularyID: getVocabInfo[0].ID,
+					ExpiredAt:    expTimeAnswer,
+					Answer:       answerKey,
+				}
+				r.db.Model(&entities.AnswerKey{}).Create(&createAnswerKey)
+				ch <- true
+				return
+			}
+			msg = "Bạn đã đăng ký khoá học rồi"
+			ch <- false
+			return
+		}
+		// msg = "Bạn đang học group này rồi"
+		// Tìm câu hỏi khác
 		// Create answer key
-		// 	}
-		// }
-
 		// Get Detail Vocab
-		r.db.Debug().Table("vocabulary").Where("word like ?", getVocabInfo[0].Word).First(&getVocabDetail)
 
+		r.db.Debug().Table("study_vocab_lists").Select("vocabulary_id").Where("telegram_id = ? and awl_group_id = ? and score = 0 and active = 1", userData.Message.From.ID, sendNumberOfGroup).First(&getExistVocabListItem)
+		r.db.Debug().Table("vocabulary").Where("id = ?", getExistVocabListItem.VocabularyID).First(&getVocabDetail)
 		// Query Random
-		r.db.Table("vocabulary").Select("word").Where("id != ?", getVocabInfo[0].ID).Limit(3).Order("RAND()").Find(&getRandomVocabInfo)
+		r.db.Table("vocabulary").Select("word").Where("id != ?", getVocabDetail.ID).Limit(3).Order("RAND()").Find(&getRandomVocabInfo)
 		for _, value := range getRandomVocabInfo {
 			vocabAnswerLists = append(vocabAnswerLists, value.Word)
 		}
-		vocabAnswerLists = append(vocabAnswerLists, getVocabInfo[0].Word)
+		vocabAnswerLists = append(vocabAnswerLists, getVocabDetail.Word)
 		expTimeAnswer := time.Now().Unix() + (int64(1 * 60))
 		answerFromArr := randomAnswerFromArray(vocabAnswerLists)
 		abcd := []string{"a", "b", "c", "d"}
 		var answerKey string
 		for index, value := range answerFromArr {
-			if value == getVocabInfo[0].Word {
+			if value == getVocabDetail.Word {
 				answerKey = abcd[index]
 			}
 		}
-		r.db.Debug().Table("answer_key").Select("count(id) as count").Where("telegram_id = ? and vocabulary_id = ? and expired_at > ?", userData.Message.From.ID, getVocabInfo[0].ID, time.Now().Unix()).First(&countAnswerKey)
+		r.db.Debug().Table("answer_key").Select("count(id) as count").Where("telegram_id = ? and vocabulary_id = ? and expired_at > ?", userData.Message.From.ID, getVocabDetail.ID, time.Now().Unix()).First(&countAnswerKey)
 		// Đã có câu trả lời
 		if countAnswerKey.Count > 0 {
 			msg = "Bạn thao tác nhanh quá, sống chậm lại nhé"
@@ -512,7 +556,7 @@ func (r *repositoryTelegramVieCRUD) GroupStudy(userData TelegramRespJSON) (bool,
 		}
 		createAnswerKey := entities.AnswerKey{
 			TelegramID:   userData.Message.From.ID,
-			VocabularyID: getVocabInfo[0].ID,
+			VocabularyID: getVocabDetail.ID,
 			ExpiredAt:    expTimeAnswer,
 			Answer:       answerKey,
 		}
@@ -636,4 +680,60 @@ func (r *repositoryTelegramVieCRUD) FindImage(userData TelegramRespJSON) (bool, 
 		return true, getVocabDetail.Image, nil
 	}
 	return false, msg, errors.New(msg)
+}
+
+func (r *repositoryTelegramVieCRUD) AnswerQuestionButton(userData TelegramRespJSON) (bool, string, error) {
+	// vocabImage := userData.Message.Text[7:]
+	// getVocabDetail := entities.FindVocab{}
+	// decodeBase64, _ := b64.StdEncoding.DecodeString(vocabImage)
+	// done := make(chan bool)
+	// go func(ch chan bool) {
+	// 	defer close(ch)
+	// 	r.db.Debug().Table("vocabulary").Select("image").Where("word like ?", string(decodeBase64)).First(&getVocabDetail)
+	// 	if getVocabDetail.Image == "" {
+	// 		msg = "File hình ảnh không tồn tại"
+	// 		ch <- false
+	// 		return
+	// 	}
+	// 	ch <- true
+	// 	return
+	// }(done)
+	// if channels.OK(done) {
+	// 	return true, getVocabDetail.Image, nil
+	// }
+	answerKey := userData.Message.Text[7:8]
+	getAnswerKey := entities.AnswerKey{}
+	console.Info(answerKey)
+	console.Info(userData)
+	done := make(chan bool)
+	go func(ch chan bool) {
+		defer close(ch)
+		r.db.Debug().Table("answer_key").Select("vocabulary_id, expired_at, answer, answer_type").Where("telegram_id = ? and answer_type = 'button'", userData.Message.From.ID).Order("created_at desc").First(&getAnswerKey)
+		if getAnswerKey.AnswerType == "" {
+			ch <- false
+			return
+		}
+		current := time.Now().Unix()
+		if current > getAnswerKey.ExpiredAt {
+			msg = "Thời gian trả lời hết hạn"
+			ch <- false
+			return
+		}
+		if strings.ToLower(getAnswerKey.Answer) == strings.ToLower(answerKey) && strings.ToLower(getAnswerKey.AnswerType) == "button" {
+			msg = Command_Handling.TrueAnswer
+			increamentScore := IncreaseScroreByOne(userData.Message.From.ID, getAnswerKey.VocabularyID)
+			console.Info(increamentScore)
+			r.db.Debug().Exec(increamentScore)
+			ch <- true
+			return
+		} else {
+			msg = "Bạn trả lời sai, vui lòng chọn lại đáp án"
+			ch <- false
+			return
+		}
+	}(done)
+	if channels.OK(done) {
+		return true, msg, nil
+	}
+	return false, msg, nil
 }

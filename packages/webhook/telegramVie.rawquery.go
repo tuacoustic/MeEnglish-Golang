@@ -27,6 +27,14 @@ group by awl_group_id
 `)
 }
 
+func IncreaseScroreByOne(telegram_id uint64, vocabulary_id uint64) string {
+	return fmt.Sprintf(`
+UPDATE study_vocab_lists 
+SET score = score + 1  
+WHERE (telegram_id = %d and vocabulary_id = %d and active = 1)
+`, telegram_id, vocabulary_id)
+}
+
 // func QueryTelegramStudyGroupCommand(telegram_id uint64) string {
 // 	return fmt.Sprintf(`
 // select count(id) as count
