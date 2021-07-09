@@ -13,3 +13,7 @@ type StudyVocabLists struct {
 	CreatedAt    time.Time `gorm:"default:current_timestamp" json:"created_at"`
 	UpdatedAt    time.Time `gorm:"default:current_timestamp" json:"updated_at"`
 }
+
+type CountStudyVocabLists struct {
+	Count uint32
+}

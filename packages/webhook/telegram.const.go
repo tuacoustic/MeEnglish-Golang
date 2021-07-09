@@ -75,7 +75,7 @@ var (
 		GetAudio:       "/audio@",
 		GetImage:       "/image@",
 		AnswerButton:   "answer",
-		TrueAnswer:     "bạn trả lời đúng",
+		TrueAnswer:     "Bạn trả lời đúng",
 	}
 	Home_Reply = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(

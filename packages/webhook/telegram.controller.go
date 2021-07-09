@@ -253,6 +253,22 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 						msg.ParseMode = telegramParams.ParseMode
 						msg.ReplyMarkup = replyMarkup
 						bot.Send(msg)
+						// Send Next Question
+						func(telegramVieRepo TelegramVieRepository) {
+							status, text, replyMarkup := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
+							if status == true {
+								msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+								msg.ParseMode = telegramParams.ParseMode
+								msg.ReplyMarkup = replyMarkup
+								bot.Send(msg)
+								return
+							}
+							msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+							// msg.ParseMode = telegramParams.ParseMode
+							// msg.ReplyMarkup = replyMarkup
+							bot.Send(msg)
+							return
+						}(GetStudyNowVie)
 						return
 					}
 					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
@@ -281,7 +297,7 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 				break
 			case strings.Contains(initCondition[0:16], Command_Handling.TrueAnswer) == true:
 				func(telegramVieRepo TelegramVieRepository) {
-					status, text, replyMarkup := telegramVieRepo.GroupStudy(telegramPushWB)
+					status, text, replyMarkup := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
 					if status == true {
 						msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 						msg.ParseMode = telegramParams.ParseMode
