@@ -13,5 +13,7 @@ type TelegramVieRepository interface {
 	FindAudio(TelegramRespJSON) (bool, string, error)
 	FindImage(TelegramRespJSON) (bool, string, error)
 	AnswerQuestionButton(TelegramRespJSON) (bool, string, error)
-	HandleTrueAnswer(TelegramRespJSON) (bool, string, error)
+	HandleTrueAnswer(TelegramRespJSON) (bool, string, error, tgbotapi.ReplyKeyboardMarkup)
+	AnswerQuestionByText(TelegramRespJSON) (bool, string, error)
+	ShowAnswer(TelegramRespJSON) (bool, string, error)
 }

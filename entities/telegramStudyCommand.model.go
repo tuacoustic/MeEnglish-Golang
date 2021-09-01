@@ -24,7 +24,7 @@ type GetTelegramStudyCommand struct {
 	Command    string `gorm:"size:50" json:"command"`
 	TextInput  string `gorm:"size:50" json:"text_input"`
 	AwlGroupID uint64 `json:"awl_group_id"`
-	Active     bool   `gorm:"default:0" json:"active"`
+	Active     bool   `json:"active"`
 }
 
 type CountTelegramStudyCommand struct {

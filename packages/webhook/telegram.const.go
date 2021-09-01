@@ -12,25 +12,29 @@ import (
 )
 
 type textHandlingStruct struct {
-	BotCommand     string
-	GetStudyNowVie string
-	AutoRemindVie  string
-	InstructionVie string
-	SupportVie     string
-	DevelopVie     string
-	DonateVie      string
-	BackHome       string
-	Continue       string
-	QueryGroup     string
-	QueryPage      string
-	OnCurrentGroup string
-	OnCurrentPage  string
-	GroupStudy     string
-	StartBot       string
-	GetAudio       string
-	GetImage       string
-	AnswerButton   string
-	TrueAnswer     string
+	BotCommand      string
+	GetStudyNowVie  string
+	AutoRemindVie   string
+	InstructionVie  string
+	SupportVie      string
+	DevelopVie      string
+	DonateVie       string
+	BackHome        string
+	Continue        string
+	QueryGroup      string
+	QueryPage       string
+	OnCurrentGroup  string
+	OnCurrentPage   string
+	GroupStudy      string
+	StartBot        string
+	GetAudio        string
+	GetImage        string
+	AnswerButton    string
+	TrueAnswer      string
+	AnotherGroup    string
+	AnotherQuestion string
+	Suggestion      string
+	SelectGroup     string
 }
 
 type commandGetGroupStruct struct {
@@ -57,25 +61,29 @@ var (
 		ParseMode:   "markdown",
 	}
 	Command_Handling = textHandlingStruct{
-		BotCommand:     "/",
-		GetStudyNowVie: "học ngay",
-		AutoRemindVie:  "nhắc học tự động",
-		InstructionVie: "từ vựng đã lưu",
-		SupportVie:     "gửi hỗ trợ",
-		DevelopVie:     "cùng phát triển",
-		DonateVie:      "ủng hộ tác giả",
-		BackHome:       "trang chủ",
-		Continue:       "tiếp tục",
-		QueryGroup:     "gr",
-		QueryPage:      "pg",
-		OnCurrentGroup: ">gr",
-		OnCurrentPage:  ">pg",
-		GroupStudy:     "học theo group",
-		StartBot:       "/start",
-		GetAudio:       "/audio@",
-		GetImage:       "/image@",
-		AnswerButton:   "answer",
-		TrueAnswer:     "Bạn trả lời đúng",
+		BotCommand:      "/",
+		GetStudyNowVie:  "học ngay",
+		AutoRemindVie:   "nhắc học tự động",
+		InstructionVie:  "từ vựng đã lưu",
+		SupportVie:      "gửi hỗ trợ",
+		DevelopVie:      "cùng phát triển",
+		DonateVie:       "ủng hộ tác giả",
+		BackHome:        "trang chủ",
+		Continue:        "tiếp tục",
+		QueryGroup:      "gr",
+		QueryPage:       "pg",
+		OnCurrentGroup:  ">gr",
+		OnCurrentPage:   ">pg",
+		GroupStudy:      "học theo group",
+		StartBot:        "/start",
+		GetAudio:        "/audio@",
+		GetImage:        "/image@",
+		AnswerButton:    "answer",
+		TrueAnswer:      "Bạn trả lời đúng",
+		AnotherGroup:    "học group khác",
+		AnotherQuestion: "câu hỏi khác",
+		Suggestion:      "gợi ý",
+		SelectGroup:     "group từ vựng",
 	}
 	Home_Reply = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
@@ -94,8 +102,9 @@ var (
 	Back_Home_Reply = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton("Tiếp tục"),
-			tgbotapi.NewKeyboardButton("Nhắc học tự động"),
-			tgbotapi.NewKeyboardButton("Từ vựng đã lưu"),
+			tgbotapi.NewKeyboardButton("Group từ vựng"),
+			// tgbotapi.NewKeyboardButton("Nhắc học tự động"),
+			// tgbotapi.NewKeyboardButton("Từ vựng đã lưu"),
 		),
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton("Gửi hỗ trợ"),
@@ -371,6 +380,52 @@ Image: /image@%s
 `, AwlGroupID, vocabData.Vi, encodeBase64, strings.Join(definition, "\n"), strings.Join(example, "\n"), strings.Join(addTheAnswer, "\n"))
 }
 
-// func AnswerKeyReply() tgbotapi.ReplyKeyboardMarkup {
+func VocabAnswerByText(AwlGroupID uint64, vocabData entities.FindVocab) string {
+	var lexicalCategoryArr []string
+	json.Unmarshal([]byte(vocabData.LexicalCategory), &lexicalCategoryArr)
+	definition := getDefinition(vocabData)
+	example := getExample(vocabData)
+	encodeBase64 := b64.StdEncoding.EncodeToString([]byte(strings.ToLower(vocabData.Word)))
+	return fmt.Sprintf(`
+*📌 Group %d - Vui lòng *nhập* đáp án và nhấn nút gửi*
 
-// }
+🔑 ----- (##) (##): %s
+Image: /image@%s
+
+*Definition*
+%s
+
+*Example*
+%s
+`, AwlGroupID, vocabData.Vi, encodeBase64, strings.Join(definition, "\n"), strings.Join(example, "\n"))
+}
+
+func AnswerTextVieReplyDefault(AwlGroupID uint64) tgbotapi.ReplyKeyboardMarkup {
+	var respReply tgbotapi.ReplyKeyboardMarkup
+	respReply = tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Trang chủ"),
+			tgbotapi.NewKeyboardButton("Học Group khác"),
+		),
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Gợi ý"),
+			tgbotapi.NewKeyboardButton("Câu hỏi khác"),
+		),
+	)
+	return respReply
+}
+
+func FinishTextVieReplyDefault() tgbotapi.ReplyKeyboardMarkup {
+	var respReply tgbotapi.ReplyKeyboardMarkup
+	respReply = tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Trang chủ"),
+			tgbotapi.NewKeyboardButton("Học Group khác"),
+		),
+	)
+	return respReply
+}
+
+func GetShowAnswerText(word string) string {
+	return fmt.Sprintf("Đáp án là: %s", word)
+}
