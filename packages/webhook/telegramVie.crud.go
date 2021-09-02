@@ -136,6 +136,7 @@ func (r *repositoryTelegramVieCRUD) GetStudyNowVie(userData TelegramRespJSON) (b
 		return
 	}(done)
 	if channels.OK(done) {
+		defer r.db.Close()
 		replyMarkup = StudyNowVieReplyDefault(studyCommand.AwlGroupID)
 		if countStudyCommand.Count > 0 {
 			if len(listsVocab) == 0 {
@@ -423,7 +424,6 @@ func (r *repositoryTelegramVieCRUD) GroupStudy(userData TelegramRespJSON) (bool,
 	getStudyVocab := entities.StudyVocabLists{}
 	getExistVocabListItem := entities.StudyVocabLists{}
 	getVocabID := entities.StudyVocabLists{}
-	highestScore := entities.CountStudyVocabLists{}
 	var bulkInsertVocabLists []interface{}
 	var numberOfGroupStudy string
 	var vocabAnswerLists []string
@@ -581,64 +581,71 @@ func (r *repositoryTelegramVieCRUD) GroupStudy(userData TelegramRespJSON) (bool,
 
 		expTimeAnswer := time.Now().Unix() + (int64(1 * 60))
 		// -- Find Max Score
-		r.db.Table("study_vocab_lists").Select("max(score) as count").Where("telegram_id = ? and awl_group_id = ?", userData.Message.From.ID, sendNumberOfGroup).First(&highestScore)
-		if highestScore.Count >= 2 {
-			console.Info("Bạn đã học hết nhóm")
-			ch <- false
-			return
-		}
-		if highestScore.Count == 0 {
-			// Query Random
-			r.db.Table("vocabulary").Select("word").Where("id != ?", getVocabDetail.ID).Limit(3).Order("RAND()").Find(&getRandomVocabInfo)
-			for _, value := range getRandomVocabInfo {
-				vocabAnswerLists = append(vocabAnswerLists, value.Word)
-			}
-			vocabAnswerLists = append(vocabAnswerLists, getVocabDetail.Word)
-			answerFromArr := randomAnswerFromArray(vocabAnswerLists)
-			abcd := []string{"a", "b", "c", "d"}
-			var answerKey string
-			for index, value := range answerFromArr {
-				if value == getVocabDetail.Word {
-					answerKey = abcd[index]
+		countAllStudyVocab := entities.CountStudyVocabLists{}    // Đếm tổng
+		getStudyVocabScoreBy2 := entities.CountStudyVocabLists{} // Tìm số điểm 2
+		getStudyVocabScoreByRandom := entities.StudyVocabLists{} // Tìm số điểm 1
+		// Đếm tổng vocab đang học
+		r.db.Debug().Table("study_vocab_lists").Select("count(vocabulary_id) as count").Where("telegram_id = ? and awl_group_id = ?", userData.Message.From.ID, sendNumberOfGroup).First(&countAllStudyVocab)
+		// Tìm số điểm 2
+		r.db.Debug().Table("study_vocab_lists").Select("count(vocabulary_id) as count").Where("telegram_id = ? and awl_group_id = ? and score = 2", userData.Message.From.ID, sendNumberOfGroup).First(&getStudyVocabScoreBy2)
+
+		if getStudyVocabScoreBy2.Count < countAllStudyVocab.Count {
+			r.db.Debug().Table("study_vocab_lists").Select("score").Where("telegram_id = ? and awl_group_id = ? and score < 2", userData.Message.From.ID, sendNumberOfGroup).Order("RAND()").First(&getStudyVocabScoreByRandom)
+			if uint32(getStudyVocabScoreByRandom.Score) == 0 {
+				// Query Random
+				r.db.Table("vocabulary").Select("word").Where("id != ?", getVocabDetail.ID).Limit(3).Order("RAND()").Find(&getRandomVocabInfo)
+				for _, value := range getRandomVocabInfo {
+					vocabAnswerLists = append(vocabAnswerLists, value.Word)
 				}
-			}
-			r.db.Debug().Table("answer_key").Select("count(id) as count").Where("telegram_id = ? and vocabulary_id = ? and expired_at > ?", userData.Message.From.ID, getVocabDetail.ID, time.Now().Unix()).First(&countAnswerKey)
-			// Đã có câu trả lời
-			if countAnswerKey.Count > 0 {
-				msg = "Bạn thao tác nhanh quá, sống chậm lại nhé"
-				ch <- false
+				vocabAnswerLists = append(vocabAnswerLists, getVocabDetail.Word)
+				answerFromArr := randomAnswerFromArray(vocabAnswerLists)
+				abcd := []string{"a", "b", "c", "d"}
+				var answerKey string
+				for index, value := range answerFromArr {
+					if value == getVocabDetail.Word {
+						answerKey = abcd[index]
+					}
+				}
+				r.db.Debug().Table("answer_key").Select("count(id) as count").Where("telegram_id = ? and vocabulary_id = ? and expired_at > ?", userData.Message.From.ID, getVocabDetail.ID, time.Now().Unix()).First(&countAnswerKey)
+				// Đã có câu trả lời
+				if countAnswerKey.Count > 0 {
+					msg = "Bạn thao tác nhanh quá, sống chậm lại nhé"
+					ch <- false
+					return
+				}
+				createAnswerKey := entities.AnswerKey{
+					TelegramID:   userData.Message.From.ID,
+					VocabularyID: getVocabDetail.ID,
+					ExpiredAt:    expTimeAnswer,
+					Answer:       answerKey,
+					Word:         getVocabDetail.Word,
+				}
+				r.db.Model(&entities.AnswerKey{}).Create(&createAnswerKey)
+				ch <- true
+				return
+			} else {
+				console.Info("Đang khởi động điểm 1")
+				r.db.Debug().Table("study_vocab_lists").Select("vocabulary_id, score").Where("telegram_id = ? and awl_group_id = ? and score = 1", userData.Message.From.ID, sendNumberOfGroup).Order("RAND()").First(&getVocabID)
+				r.db.Debug().Table("vocabulary").Where("id = ?", getVocabID.VocabularyID).First(&getVocabDetail)
+				createAnswerKeyByText := entities.AnswerKey{
+					TelegramID:   userData.Message.From.ID,
+					VocabularyID: getVocabDetail.ID,
+					ExpiredAt:    expTimeAnswer,
+					Answer:       getVocabDetail.Word,
+					Word:         getVocabDetail.Word,
+					AnswerType:   EnumAnswerCommand.TextCommand,
+				}
+				r.db.Model(&entities.AnswerKey{}).Create(&createAnswerKeyByText)
+				ch <- true
 				return
 			}
-			createAnswerKey := entities.AnswerKey{
-				TelegramID:   userData.Message.From.ID,
-				VocabularyID: getVocabDetail.ID,
-				ExpiredAt:    expTimeAnswer,
-				Answer:       answerKey,
-				Word:         getVocabDetail.Word,
-			}
-			r.db.Model(&entities.AnswerKey{}).Create(&createAnswerKey)
-			ch <- true
-			return
 		} else {
-			console.Info("Đang khởi động điểm 1")
-			r.db.Debug().Table("study_vocab_lists").Select("vocabulary_id, score").Where("telegram_id = ? and awl_group_id = ? and score = 1", userData.Message.From.ID, sendNumberOfGroup).Order("RAND()").First(&getVocabID)
-			r.db.Debug().Table("vocabulary").Where("id = ?", getVocabID.VocabularyID).First(&getVocabDetail)
-			createAnswerKeyByText := entities.AnswerKey{
-				TelegramID:   userData.Message.From.ID,
-				VocabularyID: getVocabDetail.ID,
-				ExpiredAt:    expTimeAnswer,
-				Answer:       getVocabDetail.Word,
-				Word:         getVocabDetail.Word,
-				AnswerType:   EnumAnswerCommand.TextCommand,
-			}
-			r.db.Model(&entities.AnswerKey{}).Create(&createAnswerKeyByText)
-			ch <- true
-			return
+			console.Info("Bạn đã học hết nhóm")
 		}
 	}(done)
 	if channels.OK(done) {
 		defer r.db.Close()
-		switch highestScore.Count {
+		switch getVocabID.Score {
 		case 0:
 			if getVocabDetail.Word != "" {
 				text := VocabAnswerLists(uint64(sendNumberOfGroup), getVocabDetail, vocabAnswerLists)
@@ -904,7 +911,7 @@ func (r *repositoryTelegramVieCRUD) HandleTrueAnswer(userData TelegramRespJSON) 
 					r.db.Model(&entities.AnswerKey{}).Create(&createAnswerKeyByText)
 				}
 			} else {
-				console.Info("Bạn đã học hết nhóm 1")
+				console.Info("Bạn đã học hết nhóm")
 			}
 		}
 		ch <- true
