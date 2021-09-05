@@ -167,23 +167,7 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 			}(GetStudyNowVie)
 			break
 		case Command_Handling.SelectGroup:
-			// fallthrough
-			func(telegramVieRepo TelegramVieRepository) {
-				status, text, replyMarkup := telegramVieRepo.GetStudyNowVie(telegramPushWB)
-				if status == true {
-					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
-					msg.ParseMode = telegramParams.ParseMode
-					msg.ReplyMarkup = replyMarkup
-					bot.Send(msg)
-					return
-				}
-				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
-				msg.ParseMode = telegramParams.ParseMode
-				msg.ReplyMarkup = replyMarkup
-				bot.Send(msg)
-				return
-			}(GetStudyNowVie)
-			break
+			fallthrough
 		case Command_Handling.AnotherGroup:
 			func(telegramVieRepo TelegramVieRepository) {
 				status, text, replyMarkup := telegramVieRepo.GetStudyNowVie(telegramPushWB)
