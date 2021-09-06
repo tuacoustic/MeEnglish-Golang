@@ -1,7 +1,7 @@
 # Dockerfile References: https://docs.docker.com/engine/reference/builder/
 
 # Start from the latest golang base image
-FROM golang:1.17.0
+FROM golang:1.15.14
 # ENV TZ="Asia/Ho_Chi_Minh"
 # Add Maintainer Info
 # LABEL maintainer="Rajeev Singh <rajeevhub@gmail.com>"
