@@ -926,6 +926,7 @@ func (r *repositoryTelegramVieCRUD) ShowAnswer(userData TelegramRespJSON) (bool,
 		defer close(ch)
 		r.db.Table("answer_key").Select("word").Order("created_at desc").First(&getAnswerKey)
 		if getAnswerKey.Word == "" {
+			msg = "Chưa có câu trả lời"
 			ch <- false
 			return
 		}
@@ -936,5 +937,5 @@ func (r *repositoryTelegramVieCRUD) ShowAnswer(userData TelegramRespJSON) (bool,
 		text := GetShowAnswerText(getAnswerKey.Word)
 		return true, text, nil
 	}
-	return false, "Chưa có câu trả lời", nil
+	return false, msg, nil
 }

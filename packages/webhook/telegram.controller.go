@@ -8,6 +8,7 @@ import (
 	"me-english/utils/config"
 	"me-english/utils/console"
 	"strings"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -233,6 +234,7 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 					msg.ParseMode = telegramParams.ParseMode
 					bot.Send(msg)
+					time.Sleep(2 * time.Second)
 					func(telegramVieRepo TelegramVieRepository) {
 						status, text, _, replyMarkup, filePath := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
 						if status == true {
@@ -250,6 +252,25 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 						msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 						bot.Send(msg)
 					}(GetStudyNowVie)
+					return
+				}
+				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+				bot.Send(msg)
+			}(GetStudyNowVie)
+			break
+		case Command_Handling.AnotherQuestion:
+			func(telegramVieRepo TelegramVieRepository) {
+				status, text, _, replyMarkup, filePath := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
+				if status == true {
+					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
+					msg.ParseMode = telegramParams.ParseMode
+					msg.ReplyMarkup = replyMarkup
+					bot.Send(msg)
+					if filePath != "" {
+						var sendImg tgbotapi.PhotoConfig
+						sendImg = tgbotapi.NewPhotoShare(int64(telegramPushWB.Message.From.ID), filePath)
+						bot.Send(sendImg)
+					}
 					return
 				}
 				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
