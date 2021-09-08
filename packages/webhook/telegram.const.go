@@ -88,8 +88,7 @@ var (
 	Home_Reply = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton("Học ngay"),
-			tgbotapi.NewKeyboardButton("Nhắc học tự động"),
-			tgbotapi.NewKeyboardButton("Từ vựng đã lưu"),
+			tgbotapi.NewKeyboardButton("Group từ vựng"),
 		),
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton("Gửi hỗ trợ"),
@@ -147,7 +146,10 @@ var (
 			tgbotapi.NewKeyboardButton("Answer D"),
 		),
 		tgbotapi.NewKeyboardButtonRow(
-			tgbotapi.NewKeyboardButton("Quit the answer"),
+			tgbotapi.NewKeyboardButton("Gợi ý"),
+		),
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Câu hỏi khác"),
 		),
 	)
 	Command_GetGroup = "GET_GROUP"
@@ -274,7 +276,7 @@ func VocabDetailText(AwlGroupID uint64, vocabData entities.FindVocab, listsVocab
 	definition := getDefinition(vocabData)
 	example := getExample(vocabData)
 	textArrToString := strings.Join(listsVocabArr, "")
-	encodeBase64 := b64.StdEncoding.EncodeToString([]byte(strings.ToLower(vocabData.Word)))
+	// encodeBase64 := b64.StdEncoding.EncodeToString([]byte(strings.ToLower(vocabData.Word)))
 	return fmt.Sprintf(`
 *GROUP %d*
 
@@ -289,7 +291,7 @@ Image: /image@%s﹒
 %s
 
 %s
-`, AwlGroupID, strings.Title(strings.ToLower(vocabData.Word)), vocabData.PhoneticSpelling, strings.Join(lexicalCategoryArr, "|"), vocabData.Vi, vocabData.Word, encodeBase64, strings.Join(definition, "\n"), strings.Join(example, "\n"), textArrToString)
+`, AwlGroupID, strings.Title(strings.ToLower(vocabData.Word)), vocabData.PhoneticSpelling, strings.Join(lexicalCategoryArr, "|"), vocabData.Vi, vocabData.Word, vocabData.Word, strings.Join(definition, "\n"), strings.Join(example, "\n"), textArrToString)
 }
 
 func getDefinition(defiData entities.FindVocab) []string {
@@ -357,18 +359,17 @@ func VocabAnswerLists(AwlGroupID uint64, vocabData entities.FindVocab, answerKey
 	json.Unmarshal([]byte(vocabData.LexicalCategory), &lexicalCategoryArr)
 	definition := getDefinition(vocabData)
 	example := getExample(vocabData)
-	encodeBase64 := b64.StdEncoding.EncodeToString([]byte(strings.ToLower(vocabData.Word)))
+	// encodeBase64 := b64.StdEncoding.EncodeToString([]byte(strings.ToLower(vocabData.Word)))
 	var addTheAnswer []string
 	key := []string{"A", "B", "C", "D"}
 	for index, value := range answerKeyLists {
-		addTheAnswer = append(addTheAnswer, fmt.Sprintf("%s. %s", key[index], value))
+		addTheAnswer = append(addTheAnswer, fmt.Sprintf("%s. %s﹒/audio@%s 🔈", key[index], value, value))
 	}
 	return fmt.Sprintf(`
 *📌 Bạn đang học Group %d*
 
 Vui lòng cung cấp đáp án dưới:
 🔑 ----- (##) (##): %s
-Image: /image@%s
 
 *Definition*
 %s
@@ -377,7 +378,7 @@ Image: /image@%s
 %s
 
 %s
-`, AwlGroupID, vocabData.Vi, encodeBase64, strings.Join(definition, "\n"), strings.Join(example, "\n"), strings.Join(addTheAnswer, "\n"))
+`, AwlGroupID, vocabData.Vi, strings.Join(definition, "\n"), strings.Join(example, "\n"), strings.Join(addTheAnswer, "\n"))
 }
 
 func VocabAnswerByText(AwlGroupID uint64, vocabData entities.FindVocab) string {

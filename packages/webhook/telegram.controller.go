@@ -153,12 +153,17 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 			break
 		case Command_Handling.Continue:
 			func(telegramVieRepo TelegramVieRepository) {
-				status, text, _, replyMarkup := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
+				status, text, _, replyMarkup, filePath := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
 				if status == true {
 					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 					msg.ParseMode = telegramParams.ParseMode
 					msg.ReplyMarkup = replyMarkup
 					bot.Send(msg)
+					if filePath != "" {
+						var sendImg tgbotapi.PhotoConfig
+						sendImg = tgbotapi.NewPhotoShare(int64(telegramPushWB.Message.From.ID), filePath)
+						bot.Send(sendImg)
+					}
 					return
 				}
 				msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
@@ -229,12 +234,17 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 					msg.ParseMode = telegramParams.ParseMode
 					bot.Send(msg)
 					func(telegramVieRepo TelegramVieRepository) {
-						status, text, _, replyMarkup := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
+						status, text, _, replyMarkup, filePath := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
 						if status == true {
 							msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 							msg.ParseMode = telegramParams.ParseMode
 							msg.ReplyMarkup = replyMarkup
 							bot.Send(msg)
+							if filePath != "" {
+								var sendImg tgbotapi.PhotoConfig
+								sendImg = tgbotapi.NewPhotoShare(int64(telegramPushWB.Message.From.ID), filePath)
+								bot.Send(sendImg)
+							}
 							return
 						}
 						msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
@@ -306,12 +316,17 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 						bot.Send(msg)
 						// Send Next Question
 						func(telegramVieRepo TelegramVieRepository) {
-							status, text, _, replyMarkup := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
+							status, text, _, replyMarkup, filePath := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
 							if status == true {
 								msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 								msg.ParseMode = telegramParams.ParseMode
 								msg.ReplyMarkup = replyMarkup
 								bot.Send(msg)
+								if filePath != "" {
+									var sendImg tgbotapi.PhotoConfig
+									sendImg = tgbotapi.NewPhotoShare(int64(telegramPushWB.Message.From.ID), filePath)
+									bot.Send(sendImg)
+								}
 								return
 							}
 							msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
@@ -342,12 +357,17 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 				break
 			case strings.Contains(sliceTextByLength, Command_Handling.TrueAnswer) == true && lengthText == 16:
 				func(telegramVieRepo TelegramVieRepository) {
-					status, text, _, replyMarkup := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
+					status, text, _, replyMarkup, filePath := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
 					if status == true {
 						msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 						msg.ParseMode = telegramParams.ParseMode
 						msg.ReplyMarkup = replyMarkup
 						bot.Send(msg)
+						if filePath != "" {
+							var sendImg tgbotapi.PhotoConfig
+							sendImg = tgbotapi.NewPhotoShare(int64(telegramPushWB.Message.From.ID), filePath)
+							bot.Send(sendImg)
+						}
 						return
 					}
 					msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
@@ -364,12 +384,17 @@ func TelegramPushWebhook(telegramPushWB TelegramRespJSON) {
 						bot.Send(msg)
 						// Send Next Question
 						func(telegramVieRepo TelegramVieRepository) {
-							status, text, _, replyMarkup := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
+							status, text, _, replyMarkup, filePath := telegramVieRepo.HandleTrueAnswer(telegramPushWB)
 							if status == true {
 								msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
 								msg.ParseMode = telegramParams.ParseMode
 								msg.ReplyMarkup = replyMarkup
 								bot.Send(msg)
+								if filePath != "" {
+									var sendImg tgbotapi.PhotoConfig
+									sendImg = tgbotapi.NewPhotoShare(int64(telegramPushWB.Message.From.ID), filePath)
+									bot.Send(sendImg)
+								}
 								return
 							}
 							msg := tgbotapi.NewMessage(int64(telegramPushWB.Message.From.ID), text)
